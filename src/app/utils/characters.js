@@ -18,3 +18,4 @@ export const characters = [
     avatar: '/user.png'
   }
 ];
+
