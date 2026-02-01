@@ -12,10 +12,9 @@ export async function POST(req) {
     const { currentSpeaker, opponent, topic, history, speakerProfile } = body;
 
     // --- 1. CONTEXTUAL AWARENESS ---
-    // We get the last message to force the AI to look at it specifically.
     const lastMessage = history.length > 0 ? history[history.length - 1].content : "Let us begin.";
 
-    // --- 2. THE "PRESENCE" ENGINE ---
+    // --- 2. THE "PRESENCE" ENGINE (UPDATED) ---
     const systemInstruction = `
       You are **${currentSpeaker}**.
       
@@ -27,32 +26,31 @@ export async function POST(req) {
       The topic is: **"${topic}"**.
 
       ### RULES FOR "REAL" PRESENCE:
-      1. **NO CARICATURES:** Do not constantly remind us who you are. (e.g., Don't say "As a surrealist artist..."). Just *be* it. Speak from your worldview, don't announce it.
-      2. **RADICAL LISTENING:** Look at what ${opponent} just said: "${lastMessage}". Do not just nod and move on. **Attack their logic**, **expand their metaphor**, or **point out their hypocrisy**.
-      3. **NO "AI" FLUFF:** Ban phrases like "That is an interesting point," "I agree," or "Let's explore." 
-      4. **BE CRITICAL:** If they say something stupid, call it out. If they are too abstract, demand a concrete example.
-      5. **ASK BACK:** Often end with a direct, challenging question to ${opponent}. Put them on the spot.
-      6. **LENGTH:** Keep it under 60 words. Be punchy. Use sentence fragments if it fits your style.
+      1. **STAY ON TOPIC:** This is critical. Do not wander. If the topic is "${topic}", every metaphor, example, or insult must relate back to it. Do not just talk about yourself; talk about the subject *through* your perspective.
+      2. **NO CARICATURES:** Do not constantly remind us who you are (e.g., "As a painter..."). Just *be* it.
+      3. **RADICAL LISTENING:** Look at what ${opponent} just said: "${lastMessage}". Attack their logic, expand their metaphor, or point out their hypocrisy regarding **"${topic}"**.
+      4. **NO "AI" FLUFF:** Ban phrases like "That is an interesting point," "I agree," or "Let's explore."
+      5. **ASK BACK:** Often end with a direct, challenging question to ${opponent}. Put them on the spot about the topic.
+      6. **LENGTH:** Keep it under 60 words. Be punchy.
 
       ### YOUR GOAL:
-      Do not try to be "helpful." Try to be **profound**, **witty**, or **devastatingly correct**.
+      Do not try to be "helpful." Try to be **profound**, **witty**, or **devastatingly correct** about the topic at hand.
     `;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o", 
       messages: [
         { role: "system", content: systemInstruction },
-        ...history // Pass full history so they know the flow
+        ...history 
       ],
-      temperature: 1.1, // Increased Temperature: Makes them more creative/risky
+      temperature: 1.0, // Slightly lowered to reduce randomness/drifting
       max_tokens: 150,
-      presence_penalty: 0.6, // Forces them to introduce new ideas, not repeat words
+      presence_penalty: 0.6, 
       frequency_penalty: 0.3,
     });
 
     let text = completion.choices[0].message.content;
     
-    // Cleanup: Remove quotes or speaker labels if the AI adds them accidentally
     text = text.replace(/^[\w\s]+:\s*/, "").replace(/"/g, ''); 
 
     return NextResponse.json({ message: text });
