@@ -146,7 +146,13 @@ export default function Home() {
 
   return (
     <main style={{ 
-      background: 'radial-gradient(circle at center, #a14e15 0%, #260b00 85%)', 
+      // --- BACKGROUND TEXTURE MAGIC (Updated to .png) ---
+      backgroundImage: "url('/texture.png'), radial-gradient(circle at center, #a14e15 0%, #260b00 85%)",
+      backgroundRepeat: 'repeat, no-repeat',
+      backgroundPosition: 'top left, center',
+      backgroundSize: '400px, cover', 
+      backgroundBlendMode: 'multiply', 
+      
       minHeight: '100vh',
       color: 'white',
       fontFamily: 'serif', 
@@ -180,7 +186,7 @@ export default function Home() {
       {/* --- SECTION: FULL WIDTH CAROUSEL --- */}
       <div style={{ position: 'relative', width: '100%', marginBottom: '40px', overflow: 'hidden' }}>
         
-        {/* FADE EDGES (Increased to 300px) */}
+        {/* FADE EDGES (300px) */}
         <div style={{
           position: 'absolute', top: 0, left: 0, width: '300px', height: '100%', zIndex: 2,
           background: 'linear-gradient(to right, rgba(38,11,0,1) 0%, transparent 100%)',
@@ -416,7 +422,6 @@ export default function Home() {
                 <button onClick={continuePerformance} style={{ padding: '20px 40px', fontSize: '1.2rem', background: 'white', color: '#260b00', border: 'none', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold', boxShadow: '0 0 20px rgba(255,255,255,0.3)' }}>
                   CONTINUE DISCUSSION
                 </button>
-                {/* UPDATED: RESTART calls fullReset */}
                 <button onClick={fullReset} style={{ padding: '20px 40px', fontSize: '1.2rem', background: 'transparent', color: 'white', border: '2px solid white', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold' }}>
                   RESTART
                 </button>
