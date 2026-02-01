@@ -388,32 +388,45 @@ export default function Home() {
         alignItems: 'center',
         gap: '20px'
       }}>
-        {/* Footer Image */}
+        {/* --- FOOTER --- */}
+      <footer style={{ 
+        marginTop: '60px', 
+        // No padding here so image can be full width
+        textAlign: 'center',
+        borderTop: '1px solid rgba(255,255,255,0.1)',
+        background: 'rgba(0,0,0,0.3)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}>
+        {/* Footer Image - FULL WIDTH */}
         <img 
           src="/footer.png" 
           alt="Decoration" 
-          style={{ width: '150px', opacity: 0.8 }} 
+          style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9 }} 
         />
         
-        {/* Copyright & Link */}
-        <p style={{ fontSize: '0.9rem', color: '#aaa', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          © {new Date().getFullYear()} 
-          <a 
-            href="http://www.campdesign.net" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            style={{ 
-              color: '#e6c288', 
-              textDecoration: 'none', 
-              fontWeight: 'bold',
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '6px'
-            }}
-          >
-            ❖ A CampDesign Project
-          </a>
-        </p>
+        {/* Copyright & Link Container (Padded) */}
+        <div style={{ padding: '30px 20px' }}>
+            <p style={{ fontSize: '0.9rem', color: '#aaa', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+            © {new Date().getFullYear()} 
+            <a 
+                href="http://www.campdesign.net" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ 
+                color: '#e6c288', 
+                textDecoration: 'none', 
+                fontWeight: 'bold',
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px'
+                }}
+            >
+                ❖ A CampDesign Project
+            </a>
+            </p>
+        </div>
       </footer>
 
     </main>
