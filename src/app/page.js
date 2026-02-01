@@ -18,11 +18,9 @@ export default function Home() {
   const isTalkingRef = useRef(false);
   const carouselRef = useRef(null);
 
-  // Duplicate list for the infinite loop feel
   const carouselList = [...characters, ...characters];
 
   const toggleChar = (id) => {
-    // If we were dragging, don't select the character on mouseUp
     if (isDragging) return;
 
     if (selected.includes(id)) {
@@ -42,25 +40,23 @@ export default function Home() {
 
   // --- DRAG HANDLERS ---
   const handleMouseDown = (e) => {
-    setIsDragging(false); // Assume click first
+    setIsDragging(false); 
     carouselRef.current.style.animationPlayState = 'paused';
     setStartX(e.pageX - carouselRef.current.offsetLeft);
     setScrollLeft(carouselRef.current.scrollLeft);
   };
 
   const handleMouseMove = (e) => {
-    // If mouse is down and moving, we are dragging
     if (e.buttons !== 1) return;
     e.preventDefault();
     setIsDragging(true);
     const x = e.pageX - carouselRef.current.offsetLeft;
-    const walk = (x - startX) * 2; // *2 for faster scroll
+    const walk = (x - startX) * 2; 
     carouselRef.current.scrollLeft = scrollLeft - walk;
   };
 
   const handleMouseUp = () => {
     carouselRef.current.style.animationPlayState = 'running';
-    // Small delay to reset dragging flag so click doesn't fire immediately
     setTimeout(() => setIsDragging(false), 50);
   };
 
@@ -143,41 +139,38 @@ export default function Home() {
       overflowX: 'hidden'
     }}>
       
-      {/* ANIMATION STYLES */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes drift {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-        /* Hide scrollbar */
         .carousel-container::-webkit-scrollbar { display: none; }
         .carousel-container { -ms-overflow-style: none; scrollbar-width: none; }
       `}} />
 
-      {/* FULL WIDTH TRANSPARENT BANNER */}
+      {/* BANNER (50% SIZE) */}
       <div style={{ width: '100%', marginBottom: '20px', background: 'transparent' }}>
         <img 
           src="/banner.png" 
           alt="The Conversation" 
           style={{ 
-            width: '100%', 
+            width: '50%', // <--- REDUCED TO 50%
             height: 'auto', 
             display: 'block', 
             objectFit: 'cover',
-            // No shadow or border, just the pure PNG on top
+            margin: '0 auto' // <--- CENTERED
           }} 
         />
       </div>
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
 
-        {/* DRAGGABLE CAROUSEL */}
+        {/* CAROUSEL */}
         <section style={{ marginBottom: '40px', overflow: 'hidden', position: 'relative' }}>
           <h3 style={{ fontStyle: 'italic', marginBottom: '20px', color: 'rgba(255,255,255,0.7)', letterSpacing: '2px' }}>
             SELECT TWO THINKERS
           </h3>
           
-          {/* FADE EDGES */}
           <div style={{
             position: 'absolute', top: 0, left: 0, width: '80px', height: '100%', zIndex: 2,
             background: 'linear-gradient(to right, rgba(38,11,0,1), transparent)',
@@ -207,7 +200,6 @@ export default function Home() {
                 display: 'flex', 
                 gap: '20px', 
                 width: 'max-content',
-                // Only animate if NOT dragging
                 animation: isDragging ? 'none' : 'drift 60s linear infinite', 
                 padding: '0 50px' 
               }}
@@ -232,7 +224,7 @@ export default function Home() {
                     transform: selected.includes(char.id) ? 'scale(1.05)' : 'scale(1)',
                     backdropFilter: 'blur(5px)',
                     boxShadow: selected.includes(char.id) ? '0 0 20px rgba(255,255,255,0.3)' : 'none',
-                    userSelect: 'none' // Prevents text highlighting while dragging
+                    userSelect: 'none'
                   }}
                 >
                   <img 
@@ -245,7 +237,7 @@ export default function Home() {
                       marginBottom: '10px', 
                       objectFit: 'cover', 
                       border: '2px solid rgba(255,255,255,0.5)',
-                      pointerEvents: 'none' // Let clicks pass through image
+                      pointerEvents: 'none'
                     }} 
                   />
                   <span style={{ fontWeight: 'bold', fontSize: '0.9rem', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
@@ -257,27 +249,27 @@ export default function Home() {
           </div>
         </section>
 
-        {/* RANDOM BUTTON (Now Above Topic) */}
+        {/* RANDOM BUTTON */}
         <div style={{ marginBottom: '20px' }}>
              <button onClick={setRandomTopic} style={{ background: 'rgba(0,0,0,0.3)', color: '#ddd', border: '1px solid rgba(255,255,255,0.3)', padding: '10px 20px', fontSize: '0.9rem', cursor: 'pointer', borderRadius: '50px', textTransform: 'uppercase', letterSpacing: '1px' }}>
             Random Topic ↻
           </button>
         </div>
 
-        {/* ELEGANT TOPIC CONTAINER */}
+        {/* TOPIC CONTAINER (PNG FRAME) */}
         <div style={{ 
             margin: '0 auto 60px auto',
             width: '100%',
-            maxWidth: '700px', // Limit width so frame doesn't stretch
-            aspectRatio: '3 / 1', // Approximate ratio of your frame image
-            backgroundImage: "url('/topicframe.jpg')",
+            maxWidth: '700px',
+            aspectRatio: '3 / 1', 
+            backgroundImage: "url('/topicframe.png')", 
             backgroundSize: 'contain',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '40px' // Keep text away from ornate edges
+            padding: '40px' 
         }}>
           <input 
             type="text" 
@@ -293,14 +285,14 @@ export default function Home() {
               textTransform: 'uppercase',
               fontWeight: '900',
               outline: 'none',
-              color: '#3e2723', // Dark ink color (brown/black)
+              color: '#3e2723', 
               fontFamily: 'serif',
-              textShadow: '0 1px 1px rgba(255,255,255,0.5)' // Slight etching effect
+              textShadow: '0 1px 1px rgba(255,255,255,0.5)'
             }}
           />
         </div>
 
-        {/* MAIN ACTIONS */}
+        {/* ACTIONS */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', marginBottom: '60px' }}>
           
           {!isTalking && !showControls && (
