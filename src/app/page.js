@@ -128,15 +128,14 @@ export default function Home() {
     runTurn(conversation, nextSpeakerIndex);
   };
 
-  // --- FULL RESET FUNCTION ---
   const fullReset = () => {
     setIsTalking(false);
     isTalkingRef.current = false;
-    setSelected([]);       // Clear Characters
-    setTopic('');          // Clear Topic
-    setConversation([]);   // Clear Chat
-    setShowControls(false); // Hide Controls
-    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll back to top
+    setSelected([]);       
+    setTopic('');          
+    setConversation([]);   
+    setShowControls(false); 
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
 
   const setRandomTopic = () => {
@@ -146,7 +145,6 @@ export default function Home() {
 
   return (
     <main style={{ 
-      // --- BACKGROUND TEXTURE MAGIC (Updated to .png) ---
       backgroundImage: "url('/texture.png'), radial-gradient(circle at center, #a14e15 0%, #260b00 85%)",
       backgroundRepeat: 'repeat, no-repeat',
       backgroundPosition: 'top left, center',
@@ -175,7 +173,7 @@ export default function Home() {
       `}} />
 
       {/* BANNER (100% SIZE) */}
-      <div style={{ width: '100%', marginBottom: '20px', background: 'transparent' }}>
+      <div style={{ width: '100%', marginBottom: '0px', background: 'transparent' }}>
         <img 
           src="/banner.png" 
           alt="The Conversation" 
@@ -183,10 +181,31 @@ export default function Home() {
         />
       </div>
 
+      {/* --- CIRCUS INTRO INSTRUCTIONS --- */}
+      <div style={{ 
+        maxWidth: '800px', 
+        margin: '0 auto 40px auto', 
+        textAlign: 'center', 
+        padding: '0 20px'
+      }}>
+        <h2 style={{ 
+          fontSize: '1.2rem', 
+          fontStyle: 'italic', 
+          color: '#e6c288', // Gold/Parchment color
+          letterSpacing: '1px',
+          lineHeight: '1.6',
+          textShadow: '0 2px 4px rgba(0,0,0,0.8)'
+        }}>
+          LADIES AND GENTLEMEN! Step right up to the Theater of the Mind.<br/>
+          Select two legends from the carousel below, set the stage with a topic,<br/>
+          and witness a conversation that defies time and space!
+        </h2>
+      </div>
+
       {/* --- SECTION: FULL WIDTH CAROUSEL --- */}
       <div style={{ position: 'relative', width: '100%', marginBottom: '40px', overflow: 'hidden' }}>
         
-        {/* FADE EDGES (300px) */}
+        {/* FADE EDGES */}
         <div style={{
           position: 'absolute', top: 0, left: 0, width: '300px', height: '100%', zIndex: 2,
           background: 'linear-gradient(to right, rgba(38,11,0,1) 0%, transparent 100%)',
@@ -228,15 +247,16 @@ export default function Home() {
                 style={{
                   flex: '0 0 auto', 
                   width: '160px',
-                  border: selected.includes(char.id) ? '3px solid #fff' : '1px solid rgba(255,255,255,0.3)',
-                  padding: '15px',
-                  background: selected.includes(char.id) ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+                  // Card styling for carousel items too
+                  border: selected.includes(char.id) ? '2px solid #fff' : '1px solid rgba(255,255,255,0.3)',
+                  padding: '10px',
+                  background: selected.includes(char.id) ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.3)',
                   color: 'white',
                   cursor: 'pointer',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  borderRadius: '12px',
+                  borderRadius: '6px', // Slight rounded corners for card feel
                   transition: 'transform 0.2s',
                   transform: selected.includes(char.id) ? 'scale(1.05)' : 'scale(1)',
                   backdropFilter: 'blur(5px)',
@@ -247,7 +267,15 @@ export default function Home() {
                 <img 
                   src={char.avatar} 
                   alt={char.name} 
-                  style={{ width: '80px', height: '80px', borderRadius: '50%', marginBottom: '10px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.5)', pointerEvents: 'none' }} 
+                  style={{ 
+                    width: '100%', 
+                    aspectRatio: '1/1', // Keep aspect ratio square
+                    borderRadius: '4px', // Small radius, not circle
+                    marginBottom: '10px', 
+                    objectFit: 'cover', 
+                    border: '1px solid rgba(255,255,255,0.5)', 
+                    pointerEvents: 'none' 
+                  }} 
                 />
                 <span style={{ fontWeight: 'bold', fontSize: '0.9rem', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
                   {char.name}
@@ -259,46 +287,68 @@ export default function Home() {
       </div>
 
 
-      {/* --- SECTION: THE MATCHUP (1 vs 2) --- */}
+      {/* --- SECTION: THE MATCHUP CARDS (UPDATED) --- */}
       <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
         
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px', marginBottom: '40px' }}>
           
-          {/* SLOT 1 */}
+          {/* CARD 1 */}
           <div style={{ 
-            width: '120px', height: '140px', 
-            border: '2px dashed rgba(255,255,255,0.3)', 
-            borderRadius: '12px',
+            width: '180px', height: '250px',  // Larger Card Size
+            border: '2px solid rgba(255,255,255,0.4)', 
+            borderRadius: '8px',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(0,0,0,0.2)'
+            background: 'rgba(0,0,0,0.4)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+            padding: '10px'
           }}>
             {player1 ? (
               <>
-                <img src={player1.avatar} style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '2px solid white' }} />
-                <span style={{ marginTop: '10px', fontSize: '0.8rem', fontWeight: 'bold' }}>{player1.name}</span>
+                <img 
+                  src={player1.avatar} 
+                  style={{ 
+                    width: '100%', 
+                    height: '80%', 
+                    borderRadius: '4px', // Rectangular image
+                    objectFit: 'cover', 
+                    border: '1px solid rgba(255,255,255,0.3)' 
+                  }} 
+                />
+                <span style={{ marginTop: '15px', fontSize: '1rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>{player1.name}</span>
               </>
             ) : (
-              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '5rem', lineHeight: '1' }}>?</span>
+              <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '5rem', lineHeight: '1' }}>?</span>
             )}
           </div>
 
-          <div style={{ fontSize: '2rem', fontStyle: 'italic', fontWeight: 'bold', color: 'rgba(255,255,255,0.5)' }}>VS</div>
+          <div style={{ fontSize: '3rem', fontStyle: 'italic', fontWeight: '900', color: '#e6c288', textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>VS</div>
 
-          {/* SLOT 2 */}
+          {/* CARD 2 */}
           <div style={{ 
-            width: '120px', height: '140px', 
-            border: '2px dashed rgba(255,255,255,0.3)', 
-            borderRadius: '12px',
+            width: '180px', height: '250px', 
+            border: '2px solid rgba(255,255,255,0.4)', 
+            borderRadius: '8px',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(0,0,0,0.2)'
+            background: 'rgba(0,0,0,0.4)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+            padding: '10px'
           }}>
              {player2 ? (
               <>
-                <img src={player2.avatar} style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '2px solid white' }} />
-                <span style={{ marginTop: '10px', fontSize: '0.8rem', fontWeight: 'bold' }}>{player2.name}</span>
+                <img 
+                  src={player2.avatar} 
+                  style={{ 
+                    width: '100%', 
+                    height: '80%', 
+                    borderRadius: '4px', 
+                    objectFit: 'cover', 
+                    border: '1px solid rgba(255,255,255,0.3)' 
+                  }} 
+                />
+                <span style={{ marginTop: '15px', fontSize: '1rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>{player2.name}</span>
               </>
             ) : (
-              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '5rem', lineHeight: '1' }}>?</span>
+              <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '5rem', lineHeight: '1' }}>?</span>
             )}
           </div>
 
@@ -335,7 +385,7 @@ export default function Home() {
 
         {/* --- RANDOM BUTTON --- */}
         <div style={{ marginBottom: '60px' }}>
-             <button onClick={setRandomTopic} style={{ background: 'rgba(0,0,0,0.3)', color: '#ddd', border: '1px solid rgba(255,255,255,0.3)', padding: '10px 20px', fontSize: '0.9rem', cursor: 'pointer', borderRadius: '50px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+             <button onClick={setRandomTopic} style={{ background: 'rgba(0,0,0,0.3)', color: '#e6c288', border: '1px solid rgba(226, 194, 136, 0.4)', padding: '10px 20px', fontSize: '0.9rem', cursor: 'pointer', borderRadius: '50px', textTransform: 'uppercase', letterSpacing: '1px' }}>
             Random Topic ↻
           </button>
         </div>
@@ -350,15 +400,15 @@ export default function Home() {
                 padding: '25px 60px', 
                 fontSize: '1.8rem', 
                 background: 'black', 
-                color: 'white', 
-                border: '1px solid #444', 
+                color: '#e6c288', // Gold text
+                border: '1px solid #e6c288', 
                 cursor: 'pointer', 
                 letterSpacing: '3px', 
                 borderRadius: '8px', 
                 textTransform: 'uppercase', 
                 fontFamily: 'serif',
                 animation: 'pulse 2s infinite', 
-                boxShadow: '0 0 20px rgba(0,0,0,0.5)'
+                boxShadow: '0 0 20px rgba(0,0,0,0.8)'
               }}
             >
               ☞&nbsp;&nbsp;Begin Performance&nbsp;&nbsp;☜
