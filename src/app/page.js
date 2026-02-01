@@ -128,6 +128,17 @@ export default function Home() {
     runTurn(conversation, nextSpeakerIndex);
   };
 
+  // --- FULL RESET FUNCTION ---
+  const fullReset = () => {
+    setIsTalking(false);
+    isTalkingRef.current = false;
+    setSelected([]);       // Clear Characters
+    setTopic('');          // Clear Topic
+    setConversation([]);   // Clear Chat
+    setShowControls(false); // Hide Controls
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll back to top
+  };
+
   const setRandomTopic = () => {
     const topics = ["The Afterlife", "Artificial Intelligence", "What is Art?", "The Perfect Society", "Love vs Logic", "Squirrels"];
     setTopic(topics[Math.floor(Math.random() * topics.length)]);
@@ -157,26 +168,26 @@ export default function Home() {
         .carousel-container { -ms-overflow-style: none; scrollbar-width: none; }
       `}} />
 
-      {/* BANNER (50% SIZE) */}
+      {/* BANNER (100% SIZE) */}
       <div style={{ width: '100%', marginBottom: '20px', background: 'transparent' }}>
         <img 
           src="/banner.png" 
           alt="The Conversation" 
-          style={{ width: '50%', height: 'auto', display: 'block', objectFit: 'cover', margin: '0 auto' }} 
+          style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover', margin: '0 auto' }} 
         />
       </div>
 
       {/* --- SECTION: FULL WIDTH CAROUSEL --- */}
       <div style={{ position: 'relative', width: '100%', marginBottom: '40px', overflow: 'hidden' }}>
         
-        {/* FADE EDGES (Positioned on the screen edges) */}
+        {/* FADE EDGES (Increased to 300px) */}
         <div style={{
-          position: 'absolute', top: 0, left: 0, width: '150px', height: '100%', zIndex: 2,
+          position: 'absolute', top: 0, left: 0, width: '300px', height: '100%', zIndex: 2,
           background: 'linear-gradient(to right, rgba(38,11,0,1) 0%, transparent 100%)',
           pointerEvents: 'none'
         }}></div>
         <div style={{
-          position: 'absolute', top: 0, right: 0, width: '150px', height: '100%', zIndex: 2,
+          position: 'absolute', top: 0, right: 0, width: '300px', height: '100%', zIndex: 2,
           background: 'linear-gradient(to left, rgba(38,11,0,1) 0%, transparent 100%)',
           pointerEvents: 'none'
         }}></div>
@@ -192,7 +203,7 @@ export default function Home() {
             overflowX: 'auto', 
             cursor: isDragging ? 'grabbing' : 'grab',
             padding: '20px 0',
-            width: '100%' // FULL WIDTH
+            width: '100%' 
           }}
         >
           <div 
@@ -261,7 +272,7 @@ export default function Home() {
                 <span style={{ marginTop: '10px', fontSize: '0.8rem', fontWeight: 'bold' }}>{player1.name}</span>
               </>
             ) : (
-              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '2rem' }}>?</span>
+              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '5rem', lineHeight: '1' }}>?</span>
             )}
           </div>
 
@@ -281,7 +292,7 @@ export default function Home() {
                 <span style={{ marginTop: '10px', fontSize: '0.8rem', fontWeight: 'bold' }}>{player2.name}</span>
               </>
             ) : (
-              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '2rem' }}>?</span>
+              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '5rem', lineHeight: '1' }}>?</span>
             )}
           </div>
 
@@ -316,7 +327,7 @@ export default function Home() {
           />
         </div>
 
-        {/* --- RANDOM BUTTON (Now Below Topic) --- */}
+        {/* --- RANDOM BUTTON --- */}
         <div style={{ marginBottom: '60px' }}>
              <button onClick={setRandomTopic} style={{ background: 'rgba(0,0,0,0.3)', color: '#ddd', border: '1px solid rgba(255,255,255,0.3)', padding: '10px 20px', fontSize: '0.9rem', cursor: 'pointer', borderRadius: '50px', textTransform: 'uppercase', letterSpacing: '1px' }}>
             Random Topic ↻
@@ -340,7 +351,7 @@ export default function Home() {
                 borderRadius: '8px', 
                 textTransform: 'uppercase', 
                 fontFamily: 'serif',
-                animation: 'pulse 2s infinite', // <--- THE PULSE
+                animation: 'pulse 2s infinite', 
                 boxShadow: '0 0 20px rgba(0,0,0,0.5)'
               }}
             >
@@ -405,7 +416,8 @@ export default function Home() {
                 <button onClick={continuePerformance} style={{ padding: '20px 40px', fontSize: '1.2rem', background: 'white', color: '#260b00', border: 'none', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold', boxShadow: '0 0 20px rgba(255,255,255,0.3)' }}>
                   CONTINUE DISCUSSION
                 </button>
-                <button onClick={startPerformance} style={{ padding: '20px 40px', fontSize: '1.2rem', background: 'transparent', color: 'white', border: '2px solid white', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold' }}>
+                {/* UPDATED: RESTART calls fullReset */}
+                <button onClick={fullReset} style={{ padding: '20px 40px', fontSize: '1.2rem', background: 'transparent', color: 'white', border: '2px solid white', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold' }}>
                   RESTART
                 </button>
               </div>
