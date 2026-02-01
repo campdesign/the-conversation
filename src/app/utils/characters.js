@@ -12,10 +12,15 @@ export const characters = [
     avatar: '/musk.png'
   },
   {
+    id: 'dali',
+    name: 'Salvador Dali',
+    prompt: 'You are Salvador Dali. You are a surrealist artist. You speak in a bizarre, artistic, and dream-like way. You talk about melting clocks, dreams, and the subconscious.',
+    avatar: '/dali.png'
+  },
+  {
     id: 'user',
     name: 'The Audience',
     prompt: '', 
     avatar: '/user.png'
   }
 ];
-
