@@ -9,13 +9,22 @@ export default function Home() {
   const [isTalking, setIsTalking] = useState(false);
   const [showControls, setShowControls] = useState(false);
   
+  // Dragging State
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  
   const chatBottomRef = useRef(null);
   const isTalkingRef = useRef(false);
+  const carouselRef = useRef(null);
 
-  // We duplicate the list to create a seamless infinite loop
+  // Duplicate list for the infinite loop feel
   const carouselList = [...characters, ...characters];
 
   const toggleChar = (id) => {
+    // If we were dragging, don't select the character on mouseUp
+    if (isDragging) return;
+
     if (selected.includes(id)) {
       setSelected(selected.filter(i => i !== id));
     } else if (selected.length < 2) {
@@ -31,6 +40,31 @@ export default function Home() {
     scrollToBottom();
   }, [conversation, showControls]);
 
+  // --- DRAG HANDLERS ---
+  const handleMouseDown = (e) => {
+    setIsDragging(false); // Assume click first
+    carouselRef.current.style.animationPlayState = 'paused';
+    setStartX(e.pageX - carouselRef.current.offsetLeft);
+    setScrollLeft(carouselRef.current.scrollLeft);
+  };
+
+  const handleMouseMove = (e) => {
+    // If mouse is down and moving, we are dragging
+    if (e.buttons !== 1) return;
+    e.preventDefault();
+    setIsDragging(true);
+    const x = e.pageX - carouselRef.current.offsetLeft;
+    const walk = (x - startX) * 2; // *2 for faster scroll
+    carouselRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    carouselRef.current.style.animationPlayState = 'running';
+    // Small delay to reset dragging flag so click doesn't fire immediately
+    setTimeout(() => setIsDragging(false), 50);
+  };
+
+  // --- API LOGIC ---
   const runTurn = async (currentHistory, speakerIndex) => {
     if (!isTalkingRef.current) return; 
 
@@ -109,23 +143,19 @@ export default function Home() {
       overflowX: 'hidden'
     }}>
       
-      {/* CSS FOR CAROUSEL ANIMATION */}
-      <style jsx global>{`
+      {/* ANIMATION STYLES */}
+      <style dangerouslySetInnerHTML={{__html: `
         @keyframes drift {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-        .carousel-track:hover {
-          animation-play-state: paused;
-        }
-        /* Hide scrollbar for clean look */
-        .carousel-container::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
+        /* Hide scrollbar */
+        .carousel-container::-webkit-scrollbar { display: none; }
+        .carousel-container { -ms-overflow-style: none; scrollbar-width: none; }
+      `}} />
 
-      {/* FULL WIDTH BANNER */}
-      <div style={{ width: '100%', marginBottom: '40px' }}>
+      {/* FULL WIDTH TRANSPARENT BANNER */}
+      <div style={{ width: '100%', marginBottom: '20px', background: 'transparent' }}>
         <img 
           src="/banner.png" 
           alt="The Conversation" 
@@ -134,49 +164,63 @@ export default function Home() {
             height: 'auto', 
             display: 'block', 
             objectFit: 'cover',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+            // No shadow or border, just the pure PNG on top
           }} 
         />
       </div>
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
 
-        {/* DRIFTING CAROUSEL */}
-        <section style={{ marginBottom: '60px', overflow: 'hidden', position: 'relative' }}>
-          <h3 style={{ fontStyle: 'italic', marginBottom: '30px', color: 'rgba(255,255,255,0.7)', letterSpacing: '2px' }}>SELECT TWO THINKERS</h3>
+        {/* DRAGGABLE CAROUSEL */}
+        <section style={{ marginBottom: '40px', overflow: 'hidden', position: 'relative' }}>
+          <h3 style={{ fontStyle: 'italic', marginBottom: '20px', color: 'rgba(255,255,255,0.7)', letterSpacing: '2px' }}>
+            SELECT TWO THINKERS
+          </h3>
           
-          {/* FADE EDGES EFFECT */}
+          {/* FADE EDGES */}
           <div style={{
-            position: 'absolute', top: 0, left: 0, width: '100px', height: '100%', zIndex: 2,
+            position: 'absolute', top: 0, left: 0, width: '80px', height: '100%', zIndex: 2,
             background: 'linear-gradient(to right, rgba(38,11,0,1), transparent)',
             pointerEvents: 'none'
           }}></div>
           <div style={{
-            position: 'absolute', top: 0, right: 0, width: '100px', height: '100%', zIndex: 2,
+            position: 'absolute', top: 0, right: 0, width: '80px', height: '100%', zIndex: 2,
             background: 'linear-gradient(to left, rgba(38,11,0,1), transparent)',
             pointerEvents: 'none'
           }}></div>
 
-          <div className="carousel-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <div 
+            className="carousel-container" 
+            ref={carouselRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            style={{ 
+              overflowX: 'auto', 
+              cursor: isDragging ? 'grabbing' : 'grab',
+              padding: '20px 0'
+            }}
+          >
             <div 
-              className="carousel-track"
               style={{ 
                 display: 'flex', 
                 gap: '20px', 
                 width: 'max-content',
-                animation: 'drift 40s linear infinite', // The Drifting Animation
-                padding: '0 50px' // Initial padding
+                // Only animate if NOT dragging
+                animation: isDragging ? 'none' : 'drift 60s linear infinite', 
+                padding: '0 50px' 
               }}
             >
               {carouselList.map((char, index) => (
-                <button 
-                  key={`${char.id}-${index}`} // Unique key for duplicates
+                <div 
+                  key={`${char.id}-${index}`} 
                   onClick={() => toggleChar(char.id)}
                   style={{
-                    flex: '0 0 auto', // Don't shrink
-                    width: '180px',
+                    flex: '0 0 auto', 
+                    width: '160px',
                     border: selected.includes(char.id) ? '3px solid #fff' : '1px solid rgba(255,255,255,0.3)',
-                    padding: '20px',
+                    padding: '15px',
                     background: selected.includes(char.id) ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
                     color: 'white',
                     cursor: 'pointer',
@@ -184,60 +228,80 @@ export default function Home() {
                     flexDirection: 'column',
                     alignItems: 'center',
                     borderRadius: '12px',
-                    transition: 'all 0.2s',
+                    transition: 'transform 0.2s',
+                    transform: selected.includes(char.id) ? 'scale(1.05)' : 'scale(1)',
                     backdropFilter: 'blur(5px)',
-                    boxShadow: selected.includes(char.id) ? '0 0 20px rgba(255,255,255,0.3)' : 'none'
+                    boxShadow: selected.includes(char.id) ? '0 0 20px rgba(255,255,255,0.3)' : 'none',
+                    userSelect: 'none' // Prevents text highlighting while dragging
                   }}
                 >
                   <img 
                     src={char.avatar} 
                     alt={char.name} 
                     style={{ 
-                      width: '90px', 
-                      height: '90px', 
+                      width: '80px', 
+                      height: '80px', 
                       borderRadius: '50%', 
-                      marginBottom: '15px', 
+                      marginBottom: '10px', 
                       objectFit: 'cover', 
-                      border: '2px solid rgba(255,255,255,0.5)' 
+                      border: '2px solid rgba(255,255,255,0.5)',
+                      pointerEvents: 'none' // Let clicks pass through image
                     }} 
                   />
-                  <span style={{ fontWeight: 'bold', fontSize: '1rem', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>{char.name}</span>
-                </button>
+                  <span style={{ fontWeight: 'bold', fontSize: '0.9rem', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
+                    {char.name}
+                  </span>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* MARQUEE TOPIC AREA */}
-        <div style={{ margin: '60px 20px' }}>
-          <p style={{ fontSize: '1.5rem', fontWeight: 'bold', fontStyle: 'italic', marginBottom: '10px', color: 'rgba(255,255,255,0.6)' }}>...VS...</p>
+        {/* RANDOM BUTTON (Now Above Topic) */}
+        <div style={{ marginBottom: '20px' }}>
+             <button onClick={setRandomTopic} style={{ background: 'rgba(0,0,0,0.3)', color: '#ddd', border: '1px solid rgba(255,255,255,0.3)', padding: '10px 20px', fontSize: '0.9rem', cursor: 'pointer', borderRadius: '50px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            Random Topic ↻
+          </button>
+        </div>
+
+        {/* ELEGANT TOPIC CONTAINER */}
+        <div style={{ 
+            margin: '0 auto 60px auto',
+            width: '100%',
+            maxWidth: '700px', // Limit width so frame doesn't stretch
+            aspectRatio: '3 / 1', // Approximate ratio of your frame image
+            backgroundImage: "url('/topicframe.jpg')",
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '40px' // Keep text away from ornate edges
+        }}>
           <input 
             type="text" 
             placeholder="ENTER TOPIC" 
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             style={{ 
-              padding: '20px', 
-              width: '100%', 
-              fontSize: '3rem', 
+              width: '80%', 
+              fontSize: '2.5rem', 
               textAlign: 'center', 
               border: 'none',
-              borderBottom: '2px solid rgba(255,255,255,0.8)',
               background: 'transparent',
               textTransform: 'uppercase',
               fontWeight: '900',
               outline: 'none',
-              color: 'white', 
-              textShadow: '0 4px 15px rgba(0,0,0,0.5)'
+              color: '#3e2723', // Dark ink color (brown/black)
+              fontFamily: 'serif',
+              textShadow: '0 1px 1px rgba(255,255,255,0.5)' // Slight etching effect
             }}
           />
         </div>
 
         {/* MAIN ACTIONS */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', marginBottom: '60px' }}>
-          <button onClick={setRandomTopic} style={{ background: 'rgba(0,0,0,0.3)', color: '#ddd', border: '1px solid rgba(255,255,255,0.3)', padding: '10px 20px', fontSize: '0.9rem', cursor: 'pointer', borderRadius: '50px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            Random Topic ↻
-          </button>
           
           {!isTalking && !showControls && (
             <button onClick={startPerformance} style={{ padding: '20px 60px', fontSize: '1.5rem', background: 'white', color: '#260b00', border: 'none', cursor: 'pointer', letterSpacing: '2px', borderRadius: '8px', textTransform: 'uppercase', fontWeight: 'bold', boxShadow: '0 0 30px rgba(255,255,255,0.4)' }}>
