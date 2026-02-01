@@ -95,9 +95,14 @@ export default function Home() {
       const newHistory = [...currentHistory, newLine];
       setConversation(newHistory);
 
-      if (newHistory.length % 6 !== 0) { 
-        setTimeout(() => runTurn(newHistory, speakerIndex === 0 ? 1 : 0), 4000);
+      // --- PACING LOGIC CHANGE ---
+      // If length is ODD (1, 3, 5...), it means Speaker A just spoke. 
+      // We automatically trigger Speaker B.
+      if (newHistory.length % 2 !== 0) { 
+        setTimeout(() => runTurn(newHistory, speakerIndex === 0 ? 1 : 0), 4000); // 4s delay for reading
       } else {
+        // If length is EVEN (2, 4, 6...), it means Speaker B just responded.
+        // We STOP here and show the "Continue" button.
         setIsTalking(false);
         isTalkingRef.current = false;
         setShowControls(true);
@@ -175,8 +180,22 @@ export default function Home() {
         .carousel-container::-webkit-scrollbar { display: none; }
         .carousel-container { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* BANNER SCALING - Default (Desktop) */
+        .responsive-banner {
+          width: 100%;
+          height: auto;
+          display: block;
+          object-fit: cover;
+        }
+
         /* MOBILE OVERRIDES (Screens smaller than 768px) */
         @media (max-width: 768px) {
+          /* Force banners to have height and crop sides */
+          .responsive-banner { 
+            height: 140px !important; 
+            object-position: center !important;
+          }
+          
           .intro-text { font-size: 1rem !important; }
           .vs-container { flex-direction: column !important; gap: 20px !important; }
           .topic-input { font-size: 1.5rem !important; width: 90% !important; }
@@ -187,12 +206,13 @@ export default function Home() {
       `}} />
 
       <div>
-        {/* BANNER */}
+        {/* BANNER (Top) */}
         <div style={{ width: '100%', marginBottom: '0px', background: 'transparent' }}>
           <img 
             src="/banner.png" 
             alt="The Conversation" 
-            style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover', margin: '0 auto' }} 
+            className="responsive-banner" 
+            style={{ margin: '0 auto' }} 
           />
         </div>
 
@@ -268,7 +288,6 @@ export default function Home() {
         {/* MATCHUP CARDS */}
         <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
           
-          {/* Add class vs-container for mobile stacking */}
           <div className="vs-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px', marginBottom: '40px' }}>
             
             {/* Card 1 */}
@@ -402,11 +421,12 @@ export default function Home() {
         alignItems: 'center',
         width: '100%'
       }}>
-        {/* Full Width Image */}
+        {/* Full Width Image - Responsive */}
         <img 
           src="/footer.png" 
           alt="Decoration" 
-          style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9 }} 
+          className="responsive-banner" 
+          style={{ opacity: 0.9 }} 
         />
         
         {/* Info Container */}
@@ -426,7 +446,7 @@ export default function Home() {
                 gap: '6px'
                 }}
             >
-                ❖ A campdesign Project
+                ❖ A CampDesign Project
             </a>
             </p>
         </div>
