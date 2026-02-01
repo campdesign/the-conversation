@@ -179,8 +179,14 @@ export default function Home() {
           object-fit: cover;
         }
 
+        /* FADE WIDTH DEFAULTS (Desktop) */
+        .carousel-fade { width: 400px; }
+
         /* MOBILE OVERRIDES */
         @media (max-width: 768px) {
+          /* Shrink fade on mobile so we can still see characters */
+          .carousel-fade { width: 80px !important; }
+
           .responsive-banner { 
             height: 140px !important; 
             object-position: center !important;
@@ -196,7 +202,7 @@ export default function Home() {
       `}} />
 
       <div>
-        {/* BANNER */}
+        {/* BANNER (Top) */}
         <div style={{ width: '100%', marginBottom: '0px', background: 'transparent' }}>
           <img 
             src="/banner.png" 
@@ -229,13 +235,17 @@ export default function Home() {
 
         {/* CAROUSEL (CIRCLES) */}
         <div style={{ position: 'relative', width: '100%', marginBottom: '40px', overflow: 'hidden' }}>
-          <div style={{
-            position: 'absolute', top: 0, left: 0, width: '100px', height: '100%', zIndex: 2,
+          
+          {/* LEFT FADE (Deep Fade) */}
+          <div className="carousel-fade" style={{
+            position: 'absolute', top: 0, left: 0, height: '100%', zIndex: 2,
             background: 'linear-gradient(to right, rgba(38,11,0,1) 0%, transparent 100%)',
             pointerEvents: 'none'
           }}></div>
-          <div style={{
-            position: 'absolute', top: 0, right: 0, width: '100px', height: '100%', zIndex: 2,
+          
+          {/* RIGHT FADE (Deep Fade) */}
+          <div className="carousel-fade" style={{
+            position: 'absolute', top: 0, right: 0, height: '100%', zIndex: 2,
             background: 'linear-gradient(to left, rgba(38,11,0,1) 0%, transparent 100%)',
             pointerEvents: 'none'
           }}></div>
@@ -279,7 +289,7 @@ export default function Home() {
                     style={{ 
                       width: '80px', 
                       height: '80px', 
-                      borderRadius: '50%', // Circular
+                      borderRadius: '50%', 
                       marginBottom: '10px', 
                       objectFit: 'cover', 
                       border: '2px solid rgba(255,255,255,0.5)', 
