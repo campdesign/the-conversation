@@ -7,7 +7,7 @@ export default function Home() {
   const [topic, setTopic] = useState('');
   const [conversation, setConversation] = useState([]); 
   const [isTalking, setIsTalking] = useState(false);
-  const [showControls, setShowControls] = useState(false); // New state for "Continue/Restart"
+  const [showControls, setShowControls] = useState(false);
   
   const chatBottomRef = useRef(null);
   const isTalkingRef = useRef(false);
@@ -35,14 +35,13 @@ export default function Home() {
     const opponent = characters.find(c => c.id === selected[speakerIndex === 0 ? 1 : 0]);
 
     try {
-      // We now pass "speakerProfile" to the API so it knows how to act!
       const response = await fetch('/api/generate-dialogue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           currentSpeaker: speaker.name,
           opponent: opponent.name,
-          speakerProfile: speaker.prompt, // <--- The Personality Data
+          speakerProfile: speaker.prompt, 
           topic: topic || "The Future",
           history: currentHistory.map(msg => ({ 
             role: msg.speaker === speaker.name ? "assistant" : "user", 
@@ -59,14 +58,9 @@ export default function Home() {
       const newHistory = [...currentHistory, newLine];
       setConversation(newHistory);
 
-      // LOOP LOGIC
-      // If we haven't hit the limit (e.g. 6 turns in this chunk), keep going
-      // Note: We check if the history length is even to ensure both get a turn before pausing
       if (newHistory.length % 6 !== 0) { 
-        // 4000ms = 4 Seconds Pause
         setTimeout(() => runTurn(newHistory, speakerIndex === 0 ? 1 : 0), 4000);
       } else {
-        // Pause and show buttons
         setIsTalking(false);
         isTalkingRef.current = false;
         setShowControls(true);
@@ -92,10 +86,8 @@ export default function Home() {
     setShowControls(false);
     setIsTalking(true);
     isTalkingRef.current = true;
-    // Determine who speaks next based on who spoke last
     const lastSpeakerName = conversation[conversation.length - 1].speaker;
     const nextSpeakerIndex = characters.find(c => c.id === selected[0]).name === lastSpeakerName ? 1 : 0;
-    
     runTurn(conversation, nextSpeakerIndex);
   };
 
@@ -152,7 +144,6 @@ export default function Home() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center' }}>
         <button onClick={setRandomTopic} style={{ background: 'none', border: '1px solid #ccc', padding: '8px 15px', fontSize: '0.9rem', cursor: 'pointer', borderRadius: '4px' }}>RANDOM TOPIC ↻</button>
         
-        {/* HIDE Start Button if we are in the middle of a chat or showing controls */}
         {!isTalking && !showControls && (
           <button onClick={startPerformance} style={{ padding: '15px 40px', fontSize: '1.2rem', background: 'black', color: 'white', border: 'none', cursor: 'pointer', letterSpacing: '1px', borderRadius: '4px' }}>
             BEGIN PERFORMANCE
@@ -165,7 +156,6 @@ export default function Home() {
           </button>
         )}
 
-        {/* NEW CONTROLS: Continue or Restart */}
         {showControls && (
           <div style={{ display: 'flex', gap: '15px' }}>
             <button onClick={continuePerformance} style={{ padding: '15px 30px', fontSize: '1rem', background: 'black', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}>
@@ -181,37 +171,49 @@ export default function Home() {
 
       {/* STAGE */}
       {conversation.length > 0 && (
-        <div style={{ marginTop: '60px', display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '40px' }}>
+        <div style={{ marginTop: '60px', display: 'flex', flexDirection: 'column', gap: '30px', paddingBottom: '40px' }}>
           {conversation.map((line, index) => {
             const isLeft = line.speaker === characters.find(c => c.id === selected[0]).name;
             return (
               <div key={index} style={{ 
                 display: 'flex', 
                 flexDirection: isLeft ? 'row' : 'row-reverse', 
-                alignItems: 'flex-end',
-                gap: '10px',
+                alignItems: 'center', // Aligns bubble with center of head
+                gap: '20px', // Bigger gap for bigger heads
                 alignSelf: isLeft ? 'flex-start' : 'flex-end', 
-                maxWidth: '80%'
+                maxWidth: '90%'
               }}>
-                {/* Avatar with flex-shrink: 0 to prevent squishing */}
+                {/* THE FIX: 
+                   1. width/height: 100px (2x larger)
+                   2. flexShrink: 0 (Prevents squishing)
+                   3. objectFit: 'cover' (Keeps face proportional)
+                */}
                 <img 
                   src={line.avatar} 
                   alt={line.speaker} 
-                  style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} 
+                  style={{ 
+                    width: '100px', 
+                    height: '100px', 
+                    borderRadius: '50%', 
+                    objectFit: 'cover', 
+                    flexShrink: 0,
+                    border: '2px solid #eee'
+                  }} 
                 />
                 
                 <div style={{ 
                   background: isLeft ? '#f0f0f0' : 'black', 
                   color: isLeft ? 'black' : 'white',
-                  padding: '15px 20px', 
-                  borderRadius: '18px',
-                  borderBottomLeftRadius: isLeft ? '4px' : '18px',
-                  borderBottomRightRadius: isLeft ? '18px' : '4px',
+                  padding: '25px 30px', // Larger bubble padding
+                  borderRadius: '24px',
+                  borderBottomLeftRadius: isLeft ? '4px' : '24px',
+                  borderBottomRightRadius: isLeft ? '24px' : '4px',
                   fontSize: '1.1rem',
-                  lineHeight: '1.4',
-                  textAlign: 'left'
+                  lineHeight: '1.5',
+                  textAlign: 'left',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
                 }}>
-                  <strong style={{ display: 'block', fontSize: '0.7rem', marginBottom: '5px', opacity: 0.7, textTransform: 'uppercase' }}>
+                  <strong style={{ display: 'block', fontSize: '0.8rem', marginBottom: '8px', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '1px' }}>
                     {line.speaker}
                   </strong>
                   {line.text}
