@@ -8,7 +8,6 @@ export default function Home() {
   const [conversation, setConversation] = useState([]); 
   const [isTalking, setIsTalking] = useState(false);
   
-  // REFS: These track data instantly, ignoring React's "render delay"
   const chatBottomRef = useRef(null);
   const isTalkingRef = useRef(false);
 
@@ -28,9 +27,7 @@ export default function Home() {
     scrollToBottom();
   }, [conversation]);
 
-  // --- THE LOGIC ---
   const runTurn = async (currentHistory, speakerIndex) => {
-    // Check the REF (instant), not the State (delayed)
     if (!isTalkingRef.current) return; 
 
     const speaker = characters.find(c => c.id === selected[speakerIndex]);
@@ -53,10 +50,9 @@ export default function Home() {
 
       const data = await response.json();
       
-      // Stop if the user clicked "Stop" while we were waiting
       if (!isTalkingRef.current) return;
 
-      const newLine = { speaker: speaker.name, text: data.message };
+      const newLine = { speaker: speaker.name, text: data.message, avatar: speaker.avatar };
       const newHistory = [...currentHistory, newLine];
       setConversation(newHistory);
 
@@ -76,17 +72,14 @@ export default function Home() {
 
   const startPerformance = () => {
     if (selected.length !== 2) return alert("Select 2 thinkers.");
-    
-    // Reset everything
     setConversation([]);
     setIsTalking(true);
-    isTalkingRef.current = true; // <--- The Fix: Flip the switch instantly
-    
+    isTalkingRef.current = true; 
     runTurn([], 0);
   };
 
   const setRandomTopic = () => {
-    const topics = ["The Afterlife", "Artificial Intelligence", "What is Art?", "The Perfect Society", "Love vs Logic"];
+    const topics = ["The Afterlife", "Artificial Intelligence", "What is Art?", "The Perfect Society", "Love vs Logic", "Squirrels"];
     setTopic(topics[Math.floor(Math.random() * topics.length)]);
   };
 
@@ -142,18 +135,48 @@ export default function Home() {
         </button>
       </div>
 
-      {/* STAGE */}
+      {/* STAGE (Chat Style) */}
       {conversation.length > 0 && (
-        <div style={{ marginTop: '60px', textAlign: 'left', background: '#f9f9f9', padding: '40px', borderRadius: '8px', minHeight: '200px' }}>
-          {conversation.map((line, index) => (
-            <div key={index} style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #eee' }}>
-              <strong style={{ textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '1px', color: '#555' }}>{line.speaker}</strong>
-              <p style={{ fontSize: '1.2rem', marginTop: '5px', lineHeight: '1.5' }}>{line.text}</p>
-            </div>
-          ))}
+        <div style={{ marginTop: '60px', display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '40px' }}>
+          {conversation.map((line, index) => {
+            // Determine if this is the "Left" person (the first one selected)
+            const isLeft = line.speaker === characters.find(c => c.id === selected[0]).name;
+            
+            return (
+              <div key={index} style={{ 
+                display: 'flex', 
+                flexDirection: isLeft ? 'row' : 'row-reverse', // Flip order for Right side
+                alignItems: 'flex-end',
+                gap: '10px',
+                alignSelf: isLeft ? 'flex-start' : 'flex-end', // Push to Left or Right
+                maxWidth: '80%'
+              }}>
+                {/* Avatar */}
+                <img src={line.avatar} alt={line.speaker} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                
+                {/* Bubble */}
+                <div style={{ 
+                  background: isLeft ? '#f0f0f0' : 'black', 
+                  color: isLeft ? 'black' : 'white',
+                  padding: '15px 20px', 
+                  borderRadius: '18px',
+                  borderBottomLeftRadius: isLeft ? '4px' : '18px',
+                  borderBottomRightRadius: isLeft ? '18px' : '4px',
+                  fontSize: '1.1rem',
+                  lineHeight: '1.4',
+                  textAlign: 'left'
+                }}>
+                  <strong style={{ display: 'block', fontSize: '0.7rem', marginBottom: '5px', opacity: 0.7, textTransform: 'uppercase' }}>
+                    {line.speaker}
+                  </strong>
+                  {line.text}
+                </div>
+              </div>
+            );
+          })}
           <div ref={chatBottomRef} />
         </div>
       )}
     </main>
   );
-}
+} 
