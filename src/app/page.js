@@ -26,7 +26,7 @@ export default function Home() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [conversation, isTalking]);
+  }, [conversation, showControls]);
 
   const runTurn = async (currentHistory, speakerIndex) => {
     if (!isTalkingRef.current) return; 
@@ -97,97 +97,120 @@ export default function Home() {
   };
 
   return (
-    <main style={{ maxWidth: '800px', margin: '0 auto', padding: '40px', fontFamily: 'serif', textAlign: 'center' }}>
+    <main style={{ 
+      // DARK GRADIENT BACKGROUND
+      background: 'linear-gradient(to bottom, #111111, #2a2a2a)', 
+      minHeight: '100vh',
+      color: 'white',
+      padding: '40px 20px', 
+      fontFamily: 'serif', 
+      textAlign: 'center' 
+    }}>
       
-      <h1 style={{ fontSize: '3rem', marginBottom: '40px', letterSpacing: '2px' }}>THE CONVERSATION</h1>
+      {/* BANNER HEADER */}
+      <div style={{ marginBottom: '60px' }}>
+        <img 
+          src="/banner.png" 
+          alt="The Conversation" 
+          style={{ 
+            maxWidth: '100%', 
+            width: '600px', 
+            height: 'auto', 
+            display: 'block', 
+            margin: '0 auto',
+            filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.1))' // Subtle glow
+          }} 
+        />
+      </div>
 
       {/* SELECTION GRID */}
-      <section style={{ marginBottom: '40px' }}>
-        <h3 style={{ fontStyle: 'italic', marginBottom: '20px' }}>SELECT TWO THINKERS</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', maxWidth: '500px', margin: '0 auto' }}>
+      <section style={{ marginBottom: '60px' }}>
+        <h3 style={{ fontStyle: 'italic', marginBottom: '30px', color: '#aaa', letterSpacing: '2px' }}>SELECT TWO THINKERS</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', maxWidth: '600px', margin: '0 auto' }}>
           {characters.map(char => (
             <button 
               key={char.id}
               onClick={() => toggleChar(char.id)}
               style={{
-                border: selected.includes(char.id) ? '2px solid black' : '1px solid #ccc',
-                padding: '15px',
-                background: selected.includes(char.id) ? '#f0f0f0' : 'white',
-                opacity: (selected.length >= 2 && !selected.includes(char.id)) ? 0.5 : 1,
+                border: selected.includes(char.id) ? '3px solid #fff' : '1px solid #444',
+                padding: '20px',
+                // Semi-transparent tiles so they blend into the dark theme
+                background: selected.includes(char.id) ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)',
+                color: 'white',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                borderRadius: '8px',
-                transition: 'all 0.2s'
+                borderRadius: '12px',
+                transition: 'all 0.2s',
+                backdropFilter: 'blur(5px)'
               }}
             >
-              <img src={char.avatar} alt={char.name} style={{ width: '80px', height: '80px', borderRadius: '50%', marginBottom: '10px', objectFit: 'cover' }} />
-              <span style={{ fontWeight: 'bold' }}>{char.name}</span>
+              <img src={char.avatar} alt={char.name} style={{ width: '90px', height: '90px', borderRadius: '50%', marginBottom: '15px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)' }} />
+              <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>{char.name}</span>
             </button>
           ))}
         </div>
       </section>
 
-      {/* INPUT */}
-      <div style={{ borderTop: '1px solid #ddd', borderBottom: '1px solid #ddd', padding: '30px 0', margin: '40px 0' }}>
-        <p style={{ fontSize: '1.2rem', marginBottom: '10px' }}>...VS...</p>
+      {/* MARQUEE TOPIC AREA */}
+      <div style={{ margin: '60px 0' }}>
+        <p style={{ fontSize: '1.5rem', fontWeight: 'bold', fontStyle: 'italic', marginBottom: '10px', color: '#888' }}>...VS...</p>
         <input 
           type="text" 
-          placeholder="Topic (e.g. The Moon)" 
+          placeholder="ENTER TOPIC" 
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
-          style={{ padding: '10px', width: '60%', fontSize: '1rem', textAlign: 'center' }}
+          style={{ 
+            padding: '20px', 
+            width: '100%', 
+            fontSize: '3rem', 
+            textAlign: 'center', 
+            border: 'none',
+            borderBottom: '2px solid white',
+            background: 'transparent',
+            textTransform: 'uppercase',
+            fontWeight: '900',
+            outline: 'none',
+            color: 'white', // White Text
+            textShadow: '0 0 20px rgba(255,255,255,0.3)'
+          }}
         />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center' }}>
-        <button onClick={setRandomTopic} style={{ background: 'none', border: '1px solid #ccc', padding: '8px 15px', fontSize: '0.9rem', cursor: 'pointer', borderRadius: '4px' }}>RANDOM TOPIC ↻</button>
+      {/* MAIN ACTIONS */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', marginBottom: '60px' }}>
+        <button onClick={setRandomTopic} style={{ background: 'rgba(255,255,255,0.1)', color: '#ccc', border: '1px solid #555', padding: '10px 20px', fontSize: '0.9rem', cursor: 'pointer', borderRadius: '50px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          Random Topic ↻
+        </button>
         
         {!isTalking && !showControls && (
-          <button onClick={startPerformance} style={{ padding: '15px 40px', fontSize: '1.2rem', background: 'black', color: 'white', border: 'none', cursor: 'pointer', letterSpacing: '1px', borderRadius: '4px' }}>
-            BEGIN PERFORMANCE
+          <button onClick={startPerformance} style={{ padding: '20px 60px', fontSize: '1.5rem', background: 'white', color: 'black', border: 'none', cursor: 'pointer', letterSpacing: '2px', borderRadius: '8px', textTransform: 'uppercase', fontWeight: 'bold', boxShadow: '0 0 30px rgba(255,255,255,0.2)' }}>
+            Begin Performance
           </button>
         )}
 
         {isTalking && (
-          <button disabled style={{ padding: '15px 40px', fontSize: '1.2rem', background: '#ccc', color: 'white', border: 'none', cursor: 'wait', letterSpacing: '1px', borderRadius: '4px' }}>
+          <button disabled style={{ padding: '20px 60px', fontSize: '1.5rem', background: '#333', color: '#888', border: 'none', cursor: 'wait', letterSpacing: '2px', borderRadius: '8px' }}>
             DEBATING...
           </button>
         )}
-
-        {showControls && (
-          <div style={{ display: 'flex', gap: '15px' }}>
-            <button onClick={continuePerformance} style={{ padding: '15px 30px', fontSize: '1rem', background: 'black', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}>
-              CONTINUE DISCUSSION
-            </button>
-            <button onClick={startPerformance} style={{ padding: '15px 30px', fontSize: '1rem', background: 'white', color: 'black', border: '1px solid black', cursor: 'pointer', borderRadius: '4px' }}>
-              RESTART
-            </button>
-          </div>
-        )}
-
       </div>
 
       {/* STAGE */}
       {conversation.length > 0 && (
-        <div style={{ marginTop: '60px', display: 'flex', flexDirection: 'column', gap: '30px', paddingBottom: '40px' }}>
+        <div style={{ marginTop: '40px', display: 'flex', flexDirection: 'column', gap: '30px', paddingBottom: '40px' }}>
           {conversation.map((line, index) => {
             const isLeft = line.speaker === characters.find(c => c.id === selected[0]).name;
             return (
               <div key={index} style={{ 
                 display: 'flex', 
                 flexDirection: isLeft ? 'row' : 'row-reverse', 
-                alignItems: 'center', // Aligns bubble with center of head
-                gap: '20px', // Bigger gap for bigger heads
+                alignItems: 'center', 
+                gap: '20px', 
                 alignSelf: isLeft ? 'flex-start' : 'flex-end', 
                 maxWidth: '90%'
               }}>
-                {/* THE FIX: 
-                   1. width/height: 100px (2x larger)
-                   2. flexShrink: 0 (Prevents squishing)
-                   3. objectFit: 'cover' (Keeps face proportional)
-                */}
                 <img 
                   src={line.avatar} 
                   alt={line.speaker} 
@@ -197,21 +220,33 @@ export default function Home() {
                     borderRadius: '50%', 
                     objectFit: 'cover', 
                     flexShrink: 0,
-                    border: '2px solid #eee'
+                    border: '3px solid #555',
+                    boxShadow: '0 5px 15px rgba(0,0,0,0.5)'
                   }} 
                 />
                 
+                {/* 3D BUBBLES */}
                 <div style={{ 
-                  background: isLeft ? '#f0f0f0' : 'black', 
+                  // DIMENSION & GRADIENTS
+                  background: isLeft 
+                    ? 'linear-gradient(135deg, #ffffff 0%, #dcdcdc 100%)' // Left: Shiny White
+                    : 'linear-gradient(135deg, #222222 0%, #000000 100%)', // Right: Deep Black
+                  
                   color: isLeft ? 'black' : 'white',
-                  padding: '25px 30px', // Larger bubble padding
-                  borderRadius: '24px',
-                  borderBottomLeftRadius: isLeft ? '4px' : '24px',
-                  borderBottomRightRadius: isLeft ? '24px' : '4px',
-                  fontSize: '1.1rem',
+                  border: isLeft ? 'none' : '1px solid #333',
+                  
+                  // 3D Shadow
+                  boxShadow: isLeft 
+                    ? '5px 5px 15px rgba(0,0,0,0.5), inset 2px 2px 5px rgba(255,255,255,1)' 
+                    : '5px 5px 15px rgba(0,0,0,0.8), inset 1px 1px 2px rgba(255,255,255,0.1)',
+                  
+                  padding: '30px 40px', 
+                  borderRadius: '30px',
+                  borderBottomLeftRadius: isLeft ? '4px' : '30px',
+                  borderBottomRightRadius: isLeft ? '30px' : '4px',
+                  fontSize: '1.2rem',
                   lineHeight: '1.5',
                   textAlign: 'left',
-                  boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
                 }}>
                   <strong style={{ display: 'block', fontSize: '0.8rem', marginBottom: '8px', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '1px' }}>
                     {line.speaker}
@@ -221,6 +256,27 @@ export default function Home() {
               </div>
             );
           })}
+
+          {/* CONTROLS */}
+          {showControls && (
+            <div style={{ 
+              marginTop: '40px', 
+              padding: '40px', 
+              borderTop: '1px solid #333', 
+              display: 'flex', 
+              gap: '20px', 
+              justifyContent: 'center',
+              animation: 'fadeIn 0.5s ease'
+            }}>
+              <button onClick={continuePerformance} style={{ padding: '20px 40px', fontSize: '1.2rem', background: 'white', color: 'black', border: 'none', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold', boxShadow: '0 0 20px rgba(255,255,255,0.3)' }}>
+                CONTINUE DISCUSSION
+              </button>
+              <button onClick={startPerformance} style={{ padding: '20px 40px', fontSize: '1.2rem', background: 'transparent', color: 'white', border: '2px solid white', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold' }}>
+                RESTART
+              </button>
+            </div>
+          )}
+
           <div ref={chatBottomRef} />
         </div>
       )}
