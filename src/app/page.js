@@ -154,7 +154,7 @@ export default function Home() {
       minHeight: '100vh',
       color: 'white',
       fontFamily: 'serif', 
-      paddingBottom: '0px', // No padding at bottom, footer handles it
+      paddingBottom: '0px', // Footer handles spacing
       overflowX: 'hidden',
       display: 'flex',
       flexDirection: 'column',
@@ -376,22 +376,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- FOOTER --- */}
+      {/* --- FOOTER (Full Width) --- */}
       <footer style={{ 
         marginTop: '60px', 
-        padding: '40px 20px', 
-        textAlign: 'center',
-        borderTop: '1px solid rgba(255,255,255,0.1)',
-        background: 'rgba(0,0,0,0.3)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '20px'
-      }}>
-        {/* --- FOOTER --- */}
-      <footer style={{ 
-        marginTop: '60px', 
-        // No padding here so image can be full width
         textAlign: 'center',
         borderTop: '1px solid rgba(255,255,255,0.1)',
         background: 'rgba(0,0,0,0.3)',
@@ -399,14 +386,14 @@ export default function Home() {
         flexDirection: 'column',
         alignItems: 'center',
       }}>
-        {/* Footer Image - FULL WIDTH */}
+        {/* Full Width Image */}
         <img 
           src="/footer.png" 
           alt="Decoration" 
           style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9 }} 
         />
         
-        {/* Copyright & Link Container (Padded) */}
+        {/* Info Container */}
         <div style={{ padding: '30px 20px' }}>
             <p style={{ fontSize: '0.9rem', color: '#aaa', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
             © {new Date().getFullYear()} 
