@@ -1,8 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-body {
-  background-color: #fafafa;
-  color: #171717;
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: white;
+  color: black;
+  font-family: serif;
 }
