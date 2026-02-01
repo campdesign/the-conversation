@@ -36,6 +36,7 @@ export default function Home() {
 
   // --- DRAG HANDLERS ---
   const handleMouseDown = (e) => {
+    if (window.innerWidth <= 768) return; // Disable drag logic on mobile grid
     setIsDragging(false); 
     carouselRef.current.style.animationPlayState = 'paused';
     setStartX(e.pageX - carouselRef.current.offsetLeft);
@@ -43,6 +44,7 @@ export default function Home() {
   };
 
   const handleMouseMove = (e) => {
+    if (window.innerWidth <= 768) return;
     if (e.buttons !== 1) return;
     e.preventDefault();
     setIsDragging(true);
@@ -52,6 +54,7 @@ export default function Home() {
   };
 
   const handleMouseUp = () => {
+    if (window.innerWidth <= 768) return;
     carouselRef.current.style.animationPlayState = 'running';
     setTimeout(() => setIsDragging(false), 50);
   };
@@ -110,7 +113,6 @@ export default function Home() {
     isTalkingRef.current = true; 
     runTurn([], 0);
     
-    // Slight scroll just to bring the stage into view initially
     setTimeout(() => {
         chatBottomRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 200);
@@ -158,7 +160,7 @@ export default function Home() {
       justifyContent: 'space-between'
     }}>
       
-      {/* CSS FOR RESPONSIVENESS */}
+      {/* CSS FOR RESPONSIVENESS & STEPS */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes drift {
           0% { transform: translateX(0); }
@@ -179,14 +181,37 @@ export default function Home() {
           object-fit: cover;
         }
 
-        /* FADE WIDTH DEFAULTS (Desktop) */
-        .carousel-fade { width: 400px; }
+        /* DEFAULT DESKTOP SCROLL */
+        .desktop-scroll-wrapper {
+          display: flex;
+          gap: 30px;
+          width: max-content;
+          animation: drift 80s linear infinite;
+          padding: 0 50px;
+        }
+        .character-card {
+           flex: 0 0 auto;
+           width: 160px;
+           transition: transform 0.2s;
+        }
+        .carousel-fade { width: 400px; display: block; }
+
+        /* STEP HEADERS */
+        .step-header {
+          font-size: 1rem;
+          color: #e6c288;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          margin-bottom: 20px;
+          text-align: center;
+          font-weight: bold;
+          border-bottom: 1px solid rgba(230, 194, 136, 0.3);
+          display: inline-block;
+          padding-bottom: 5px;
+        }
 
         /* MOBILE OVERRIDES */
         @media (max-width: 768px) {
-          /* Shrink fade on mobile so we can still see characters */
-          .carousel-fade { width: 80px !important; }
-
           .responsive-banner { 
             height: 140px !important; 
             object-position: center !important;
@@ -198,6 +223,27 @@ export default function Home() {
           .chat-avatar { width: 60px !important; height: 60px !important; }
           .chat-bubble { padding: 15px 20px !important; font-size: 1rem !important; border-radius: 20px !important; }
           .action-button { width: 90% !important; padding: 20px !important; font-size: 1.2rem !important; }
+
+          /* MOBILE GRID TRANSFORM */
+          .carousel-container {
+            width: 100% !important;
+            overflow-x: hidden !important; /* Disable scroll */
+            padding: 0 10px !important;
+          }
+          .desktop-scroll-wrapper {
+            display: flex !important;
+            flex-wrap: wrap !important; /* WRAP ITEMS */
+            justify-content: center !important;
+            width: 100% !important;
+            animation: none !important; /* STOP MOVING */
+            gap: 15px !important;
+            padding: 0 !important;
+            transform: none !important;
+          }
+          .character-card {
+            width: 100px !important; /* Smaller cards for grid */
+          }
+          .carousel-fade { display: none !important; } /* Remove fades so we can click edges */
         }
       `}} />
 
@@ -215,7 +261,7 @@ export default function Home() {
         {/* INTRO */}
         <div style={{ 
           maxWidth: '800px', 
-          margin: '0 auto 40px auto', 
+          margin: '0 auto 30px auto', 
           textAlign: 'center', 
           padding: '0 20px'
         }}>
@@ -228,22 +274,23 @@ export default function Home() {
             textShadow: '0 2px 4px rgba(0,0,0,0.8)'
           }}>
             LADIES AND GENTLEMEN! Step right up to the Theater of the Mind.<br/>
-            Select two legends from the carousel below, set the stage with a topic,<br/>
-            and witness a conversation that defies time and space!
+            Select two legends, set the stage, and witness a conversation that defies time!
           </h2>
         </div>
 
-        {/* CAROUSEL (CIRCLES) */}
+        {/* --- STEP 1: SELECT CHARACTERS --- */}
+        <div style={{ textAlign: 'center' }}>
+          <span className="step-header">Step 1: Choose Participants</span>
+        </div>
+
         <div style={{ position: 'relative', width: '100%', marginBottom: '40px', overflow: 'hidden' }}>
           
-          {/* LEFT FADE (Deep Fade) */}
+          {/* FADES (Hidden on mobile via CSS) */}
           <div className="carousel-fade" style={{
             position: 'absolute', top: 0, left: 0, height: '100%', zIndex: 2,
             background: 'linear-gradient(to right, rgba(38,11,0,1) 0%, transparent 100%)',
             pointerEvents: 'none'
           }}></div>
-          
-          {/* RIGHT FADE (Deep Fade) */}
           <div className="carousel-fade" style={{
             position: 'absolute', top: 0, right: 0, height: '100%', zIndex: 2,
             background: 'linear-gradient(to left, rgba(38,11,0,1) 0%, transparent 100%)',
@@ -259,16 +306,18 @@ export default function Home() {
             onMouseLeave={handleMouseUp}
             style={{ overflowX: 'auto', cursor: isDragging ? 'grabbing' : 'grab', padding: '20px 0', width: '100%' }}
           >
-            <div style={{ display: 'flex', gap: '30px', width: 'max-content', animation: isDragging ? 'none' : 'drift 80s linear infinite', padding: '0 50px' }}>
-              {carouselList.map((char, index) => (
+            {/* The Wrapper class switches between Scroll (Desktop) and Grid (Mobile) */}
+            <div className="desktop-scroll-wrapper">
+              {/* Use just 'characters' for mobile grid to avoid duplicates, or 'carouselList' for infinite scroll desktop */}
+              {/* For simplicity in this hybrid mode, we will just map characters once for clarity on mobile grid */}
+              {(typeof window !== 'undefined' && window.innerWidth <= 768 ? characters : carouselList).map((char, index) => (
                 <div 
                   key={`${char.id}-${index}`} 
                   onClick={() => toggleChar(char.id)}
+                  className="character-card"
                   style={{
-                    flex: '0 0 auto', 
-                    width: '160px',
                     border: selected.includes(char.id) ? '3px solid #fff' : '1px solid rgba(255,255,255,0.3)',
-                    padding: '15px',
+                    padding: '10px',
                     background: selected.includes(char.id) ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
                     color: 'white', 
                     cursor: 'pointer', 
@@ -276,7 +325,6 @@ export default function Home() {
                     flexDirection: 'column', 
                     alignItems: 'center',
                     borderRadius: '12px', 
-                    transition: 'transform 0.2s',
                     transform: selected.includes(char.id) ? 'scale(1.05)' : 'scale(1)',
                     backdropFilter: 'blur(5px)',
                     boxShadow: selected.includes(char.id) ? '0 0 20px rgba(255,255,255,0.3)' : 'none',
@@ -287,8 +335,8 @@ export default function Home() {
                     src={char.avatar} 
                     alt={char.name} 
                     style={{ 
-                      width: '80px', 
-                      height: '80px', 
+                      width: '100%', 
+                      aspectRatio: '1/1',
                       borderRadius: '50%', 
                       marginBottom: '10px', 
                       objectFit: 'cover', 
@@ -296,7 +344,7 @@ export default function Home() {
                       pointerEvents: 'none' 
                     }} 
                   />
-                  <span style={{ fontWeight: 'bold', fontSize: '0.9rem', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '0.8rem', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
                     {char.name}
                   </span>
                 </div>
@@ -345,7 +393,11 @@ export default function Home() {
             </div>
           </div>
 
-          {/* TOPIC */}
+          {/* --- STEP 2: TOPIC --- */}
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+             <span className="step-header">Step 2: Choose Topic</span>
+          </div>
+
           <div style={{ 
               margin: '0 auto 20px auto', width: '100%', maxWidth: '700px', aspectRatio: '3 / 1', 
               backgroundImage: "url('/topicframe.png')", backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center',
