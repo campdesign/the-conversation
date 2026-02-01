@@ -8,7 +8,9 @@ export default function Home() {
   const [conversation, setConversation] = useState([]); 
   const [isTalking, setIsTalking] = useState(false);
   
+  // REFS: These track data instantly, ignoring React's "render delay"
   const chatBottomRef = useRef(null);
+  const isTalkingRef = useRef(false);
 
   const toggleChar = (id) => {
     if (selected.includes(id)) {
@@ -26,8 +28,10 @@ export default function Home() {
     scrollToBottom();
   }, [conversation]);
 
+  // --- THE LOGIC ---
   const runTurn = async (currentHistory, speakerIndex) => {
-    if (!isTalking) return; 
+    // Check the REF (instant), not the State (delayed)
+    if (!isTalkingRef.current) return; 
 
     const speaker = characters.find(c => c.id === selected[speakerIndex]);
     const opponent = characters.find(c => c.id === selected[speakerIndex === 0 ? 1 : 0]);
@@ -48,6 +52,10 @@ export default function Home() {
       });
 
       const data = await response.json();
+      
+      // Stop if the user clicked "Stop" while we were waiting
+      if (!isTalkingRef.current) return;
+
       const newLine = { speaker: speaker.name, text: data.message };
       const newHistory = [...currentHistory, newLine];
       setConversation(newHistory);
@@ -56,18 +64,24 @@ export default function Home() {
         setTimeout(() => runTurn(newHistory, speakerIndex === 0 ? 1 : 0), 1000);
       } else {
         setIsTalking(false);
+        isTalkingRef.current = false;
       }
 
     } catch (error) {
       console.error(error);
       setIsTalking(false);
+      isTalkingRef.current = false;
     }
   };
 
   const startPerformance = () => {
     if (selected.length !== 2) return alert("Select 2 thinkers.");
+    
+    // Reset everything
     setConversation([]);
     setIsTalking(true);
+    isTalkingRef.current = true; // <--- The Fix: Flip the switch instantly
+    
     runTurn([], 0);
   };
 
@@ -78,9 +92,10 @@ export default function Home() {
 
   return (
     <main style={{ maxWidth: '800px', margin: '0 auto', padding: '40px', fontFamily: 'serif', textAlign: 'center' }}>
+      
       <h1 style={{ fontSize: '3rem', marginBottom: '40px', letterSpacing: '2px' }}>THE CONVERSATION</h1>
 
-      {/* SELECTION */}
+      {/* SELECTION GRID */}
       <section style={{ marginBottom: '40px' }}>
         <h3 style={{ fontStyle: 'italic', marginBottom: '20px' }}>SELECT TWO THINKERS</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', maxWidth: '500px', margin: '0 auto' }}>
@@ -101,4 +116,44 @@ export default function Home() {
                 transition: 'all 0.2s'
               }}
             >
-              <img src={char.avatar} alt={char.name} style={{ width: '80px', height: '80px',
+              <img src={char.avatar} alt={char.name} style={{ width: '80px', height: '80px', borderRadius: '50%', marginBottom: '10px', objectFit: 'cover' }} />
+              <span style={{ fontWeight: 'bold' }}>{char.name}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* INPUT */}
+      <div style={{ borderTop: '1px solid #ddd', borderBottom: '1px solid #ddd', padding: '30px 0', margin: '40px 0' }}>
+        <p style={{ fontSize: '1.2rem', marginBottom: '10px' }}>...VS...</p>
+        <input 
+          type="text" 
+          placeholder="Topic (e.g. The Moon)" 
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          style={{ padding: '10px', width: '60%', fontSize: '1rem', textAlign: 'center' }}
+        />
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center' }}>
+        <button onClick={setRandomTopic} style={{ background: 'none', border: '1px solid #ccc', padding: '8px 15px', fontSize: '0.9rem', cursor: 'pointer', borderRadius: '4px' }}>RANDOM TOPIC ↻</button>
+        <button onClick={startPerformance} disabled={isTalking} style={{ padding: '15px 40px', fontSize: '1.2rem', background: isTalking ? '#ccc' : 'black', color: 'white', border: 'none', cursor: isTalking ? 'default' : 'pointer', letterSpacing: '1px', borderRadius: '4px' }}>
+          {isTalking ? 'DEBATING...' : 'BEGIN PERFORMANCE'}
+        </button>
+      </div>
+
+      {/* STAGE */}
+      {conversation.length > 0 && (
+        <div style={{ marginTop: '60px', textAlign: 'left', background: '#f9f9f9', padding: '40px', borderRadius: '8px', minHeight: '200px' }}>
+          {conversation.map((line, index) => (
+            <div key={index} style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #eee' }}>
+              <strong style={{ textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '1px', color: '#555' }}>{line.speaker}</strong>
+              <p style={{ fontSize: '1.2rem', marginTop: '5px', lineHeight: '1.5' }}>{line.text}</p>
+            </div>
+          ))}
+          <div ref={chatBottomRef} />
+        </div>
+      )}
+    </main>
+  );
+}
