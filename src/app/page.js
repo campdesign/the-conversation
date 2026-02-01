@@ -34,20 +34,6 @@ export default function Home() {
     }
   };
 
-  const scrollToBottom = () => {
-    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  // --- FIXED SCROLLING BEHAVIOR ---
-  useEffect(() => {
-    // ONLY scroll automatically when the controls appear (end of turn)
-    // We removed 'conversation' from the dependencies so it won't 
-    // jump while the user is reading.
-    if (showControls) {
-      scrollToBottom();
-    }
-  }, [showControls]);
-
   // --- DRAG HANDLERS ---
   const handleMouseDown = (e) => {
     setIsDragging(false); 
@@ -124,9 +110,9 @@ export default function Home() {
     isTalkingRef.current = true; 
     runTurn([], 0);
     
-    // Slight scroll to show the stage has started, but only on initial start
+    // Slight scroll just to bring the stage into view initially
     setTimeout(() => {
-        chatBottomRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        chatBottomRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 200);
   };
 
@@ -186,7 +172,6 @@ export default function Home() {
         .carousel-container::-webkit-scrollbar { display: none; }
         .carousel-container { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* BANNER SCALING - Default (Desktop) */
         .responsive-banner {
           width: 100%;
           height: auto;
@@ -194,9 +179,8 @@ export default function Home() {
           object-fit: cover;
         }
 
-        /* MOBILE OVERRIDES (Screens smaller than 768px) */
+        /* MOBILE OVERRIDES */
         @media (max-width: 768px) {
-          /* Force banners to have height and crop sides */
           .responsive-banner { 
             height: 140px !important; 
             object-position: center !important;
@@ -212,7 +196,7 @@ export default function Home() {
       `}} />
 
       <div>
-        {/* BANNER (Top) */}
+        {/* BANNER */}
         <div style={{ width: '100%', marginBottom: '0px', background: 'transparent' }}>
           <img 
             src="/banner.png" 
@@ -243,7 +227,7 @@ export default function Home() {
           </h2>
         </div>
 
-        {/* CAROUSEL */}
+        {/* CAROUSEL (CIRCLES) */}
         <div style={{ position: 'relative', width: '100%', marginBottom: '40px', overflow: 'hidden' }}>
           <div style={{
             position: 'absolute', top: 0, left: 0, width: '100px', height: '100%', zIndex: 2,
@@ -271,20 +255,40 @@ export default function Home() {
                   key={`${char.id}-${index}`} 
                   onClick={() => toggleChar(char.id)}
                   style={{
-                    flex: '0 0 auto', width: '160px',
-                    border: selected.includes(char.id) ? '2px solid #fff' : '1px solid rgba(255,255,255,0.3)',
-                    padding: '10px',
-                    background: selected.includes(char.id) ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.3)',
-                    color: 'white', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    borderRadius: '6px', transition: 'transform 0.2s',
+                    flex: '0 0 auto', 
+                    width: '160px',
+                    border: selected.includes(char.id) ? '3px solid #fff' : '1px solid rgba(255,255,255,0.3)',
+                    padding: '15px',
+                    background: selected.includes(char.id) ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+                    color: 'white', 
+                    cursor: 'pointer', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center',
+                    borderRadius: '12px', 
+                    transition: 'transform 0.2s',
                     transform: selected.includes(char.id) ? 'scale(1.05)' : 'scale(1)',
                     backdropFilter: 'blur(5px)',
                     boxShadow: selected.includes(char.id) ? '0 0 20px rgba(255,255,255,0.3)' : 'none',
                     userSelect: 'none'
                   }}
                 >
-                  <img src={char.avatar} alt={char.name} style={{ width: '100%', aspectRatio: '1/1', borderRadius: '4px', marginBottom: '10px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.5)', pointerEvents: 'none' }} />
-                  <span style={{ fontWeight: 'bold', fontSize: '0.9rem', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>{char.name}</span>
+                  <img 
+                    src={char.avatar} 
+                    alt={char.name} 
+                    style={{ 
+                      width: '80px', 
+                      height: '80px', 
+                      borderRadius: '50%', // Circular
+                      marginBottom: '10px', 
+                      objectFit: 'cover', 
+                      border: '2px solid rgba(255,255,255,0.5)', 
+                      pointerEvents: 'none' 
+                    }} 
+                  />
+                  <span style={{ fontWeight: 'bold', fontSize: '0.9rem', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
+                    {char.name}
+                  </span>
                 </div>
               ))}
             </div>
