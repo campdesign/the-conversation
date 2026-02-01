@@ -20,6 +20,10 @@ export default function Home() {
 
   const carouselList = [...characters, ...characters];
 
+  // Helper to find selected character objects
+  const player1 = selected.length > 0 ? characters.find(c => c.id === selected[0]) : null;
+  const player2 = selected.length > 1 ? characters.find(c => c.id === selected[1]) : null;
+
   const toggleChar = (id) => {
     if (isDragging) return;
 
@@ -144,6 +148,11 @@ export default function Home() {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
+        @keyframes pulse {
+          0% { transform: scale(1); box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+          50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+          100% { transform: scale(1); box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        }
         .carousel-container::-webkit-scrollbar { display: none; }
         .carousel-container { -ms-overflow-style: none; scrollbar-width: none; }
       `}} />
@@ -153,112 +162,134 @@ export default function Home() {
         <img 
           src="/banner.png" 
           alt="The Conversation" 
-          style={{ 
-            width: '50%', // <--- REDUCED TO 50%
-            height: 'auto', 
-            display: 'block', 
-            objectFit: 'cover',
-            margin: '0 auto' // <--- CENTERED
-          }} 
+          style={{ width: '50%', height: 'auto', display: 'block', objectFit: 'cover', margin: '0 auto' }} 
         />
       </div>
 
-      <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
+      {/* --- SECTION: FULL WIDTH CAROUSEL --- */}
+      <div style={{ position: 'relative', width: '100%', marginBottom: '40px', overflow: 'hidden' }}>
+        
+        {/* FADE EDGES (Positioned on the screen edges) */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, width: '150px', height: '100%', zIndex: 2,
+          background: 'linear-gradient(to right, rgba(38,11,0,1) 0%, transparent 100%)',
+          pointerEvents: 'none'
+        }}></div>
+        <div style={{
+          position: 'absolute', top: 0, right: 0, width: '150px', height: '100%', zIndex: 2,
+          background: 'linear-gradient(to left, rgba(38,11,0,1) 0%, transparent 100%)',
+          pointerEvents: 'none'
+        }}></div>
 
-        {/* CAROUSEL */}
-        <section style={{ marginBottom: '40px', overflow: 'hidden', position: 'relative' }}>
-          <h3 style={{ fontStyle: 'italic', marginBottom: '20px', color: 'rgba(255,255,255,0.7)', letterSpacing: '2px' }}>
-            SELECT TWO THINKERS
-          </h3>
-          
-          <div style={{
-            position: 'absolute', top: 0, left: 0, width: '80px', height: '100%', zIndex: 2,
-            background: 'linear-gradient(to right, rgba(38,11,0,1), transparent)',
-            pointerEvents: 'none'
-          }}></div>
-          <div style={{
-            position: 'absolute', top: 0, right: 0, width: '80px', height: '100%', zIndex: 2,
-            background: 'linear-gradient(to left, rgba(38,11,0,1), transparent)',
-            pointerEvents: 'none'
-          }}></div>
-
+        <div 
+          className="carousel-container" 
+          ref={carouselRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          style={{ 
+            overflowX: 'auto', 
+            cursor: isDragging ? 'grabbing' : 'grab',
+            padding: '20px 0',
+            width: '100%' // FULL WIDTH
+          }}
+        >
           <div 
-            className="carousel-container" 
-            ref={carouselRef}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
             style={{ 
-              overflowX: 'auto', 
-              cursor: isDragging ? 'grabbing' : 'grab',
-              padding: '20px 0'
+              display: 'flex', 
+              gap: '30px', 
+              width: 'max-content',
+              animation: isDragging ? 'none' : 'drift 80s linear infinite', 
+              padding: '0 50px' 
             }}
           >
-            <div 
-              style={{ 
-                display: 'flex', 
-                gap: '20px', 
-                width: 'max-content',
-                animation: isDragging ? 'none' : 'drift 60s linear infinite', 
-                padding: '0 50px' 
-              }}
-            >
-              {carouselList.map((char, index) => (
-                <div 
-                  key={`${char.id}-${index}`} 
-                  onClick={() => toggleChar(char.id)}
-                  style={{
-                    flex: '0 0 auto', 
-                    width: '160px',
-                    border: selected.includes(char.id) ? '3px solid #fff' : '1px solid rgba(255,255,255,0.3)',
-                    padding: '15px',
-                    background: selected.includes(char.id) ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
-                    color: 'white',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    borderRadius: '12px',
-                    transition: 'transform 0.2s',
-                    transform: selected.includes(char.id) ? 'scale(1.05)' : 'scale(1)',
-                    backdropFilter: 'blur(5px)',
-                    boxShadow: selected.includes(char.id) ? '0 0 20px rgba(255,255,255,0.3)' : 'none',
-                    userSelect: 'none'
-                  }}
-                >
-                  <img 
-                    src={char.avatar} 
-                    alt={char.name} 
-                    style={{ 
-                      width: '80px', 
-                      height: '80px', 
-                      borderRadius: '50%', 
-                      marginBottom: '10px', 
-                      objectFit: 'cover', 
-                      border: '2px solid rgba(255,255,255,0.5)',
-                      pointerEvents: 'none'
-                    }} 
-                  />
-                  <span style={{ fontWeight: 'bold', fontSize: '0.9rem', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
-                    {char.name}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {carouselList.map((char, index) => (
+              <div 
+                key={`${char.id}-${index}`} 
+                onClick={() => toggleChar(char.id)}
+                style={{
+                  flex: '0 0 auto', 
+                  width: '160px',
+                  border: selected.includes(char.id) ? '3px solid #fff' : '1px solid rgba(255,255,255,0.3)',
+                  padding: '15px',
+                  background: selected.includes(char.id) ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+                  color: 'white',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  borderRadius: '12px',
+                  transition: 'transform 0.2s',
+                  transform: selected.includes(char.id) ? 'scale(1.05)' : 'scale(1)',
+                  backdropFilter: 'blur(5px)',
+                  boxShadow: selected.includes(char.id) ? '0 0 20px rgba(255,255,255,0.3)' : 'none',
+                  userSelect: 'none'
+                }}
+              >
+                <img 
+                  src={char.avatar} 
+                  alt={char.name} 
+                  style={{ width: '80px', height: '80px', borderRadius: '50%', marginBottom: '10px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.5)', pointerEvents: 'none' }} 
+                />
+                <span style={{ fontWeight: 'bold', fontSize: '0.9rem', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
+                  {char.name}
+                </span>
+              </div>
+            ))}
           </div>
-        </section>
+        </div>
+      </div>
 
-        {/* RANDOM BUTTON */}
-        <div style={{ marginBottom: '20px' }}>
-             <button onClick={setRandomTopic} style={{ background: 'rgba(0,0,0,0.3)', color: '#ddd', border: '1px solid rgba(255,255,255,0.3)', padding: '10px 20px', fontSize: '0.9rem', cursor: 'pointer', borderRadius: '50px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            Random Topic ↻
-          </button>
+
+      {/* --- SECTION: THE MATCHUP (1 vs 2) --- */}
+      <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
+        
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px', marginBottom: '40px' }}>
+          
+          {/* SLOT 1 */}
+          <div style={{ 
+            width: '120px', height: '140px', 
+            border: '2px dashed rgba(255,255,255,0.3)', 
+            borderRadius: '12px',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.2)'
+          }}>
+            {player1 ? (
+              <>
+                <img src={player1.avatar} style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '2px solid white' }} />
+                <span style={{ marginTop: '10px', fontSize: '0.8rem', fontWeight: 'bold' }}>{player1.name}</span>
+              </>
+            ) : (
+              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '2rem' }}>?</span>
+            )}
+          </div>
+
+          <div style={{ fontSize: '2rem', fontStyle: 'italic', fontWeight: 'bold', color: 'rgba(255,255,255,0.5)' }}>VS</div>
+
+          {/* SLOT 2 */}
+          <div style={{ 
+            width: '120px', height: '140px', 
+            border: '2px dashed rgba(255,255,255,0.3)', 
+            borderRadius: '12px',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.2)'
+          }}>
+             {player2 ? (
+              <>
+                <img src={player2.avatar} style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '2px solid white' }} />
+                <span style={{ marginTop: '10px', fontSize: '0.8rem', fontWeight: 'bold' }}>{player2.name}</span>
+              </>
+            ) : (
+              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '2rem' }}>?</span>
+            )}
+          </div>
+
         </div>
 
-        {/* TOPIC CONTAINER (PNG FRAME) */}
+        {/* --- TOPIC CONTAINER --- */}
         <div style={{ 
-            margin: '0 auto 60px auto',
+            margin: '0 auto 20px auto',
             width: '100%',
             maxWidth: '700px',
             aspectRatio: '3 / 1', 
@@ -277,27 +308,43 @@ export default function Home() {
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             style={{ 
-              width: '80%', 
-              fontSize: '2.5rem', 
-              textAlign: 'center', 
-              border: 'none',
-              background: 'transparent',
-              textTransform: 'uppercase',
-              fontWeight: '900',
-              outline: 'none',
-              color: '#3e2723', 
-              fontFamily: 'serif',
+              width: '80%', fontSize: '2.5rem', textAlign: 'center', border: 'none',
+              background: 'transparent', textTransform: 'uppercase', fontWeight: '900',
+              outline: 'none', color: '#3e2723', fontFamily: 'serif',
               textShadow: '0 1px 1px rgba(255,255,255,0.5)'
             }}
           />
         </div>
 
-        {/* ACTIONS */}
+        {/* --- RANDOM BUTTON (Now Below Topic) --- */}
+        <div style={{ marginBottom: '60px' }}>
+             <button onClick={setRandomTopic} style={{ background: 'rgba(0,0,0,0.3)', color: '#ddd', border: '1px solid rgba(255,255,255,0.3)', padding: '10px 20px', fontSize: '0.9rem', cursor: 'pointer', borderRadius: '50px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            Random Topic ↻
+          </button>
+        </div>
+
+        {/* --- ACTIONS: THE POINTY FINGER BUTTON --- */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', marginBottom: '60px' }}>
           
           {!isTalking && !showControls && (
-            <button onClick={startPerformance} style={{ padding: '20px 60px', fontSize: '1.5rem', background: 'white', color: '#260b00', border: 'none', cursor: 'pointer', letterSpacing: '2px', borderRadius: '8px', textTransform: 'uppercase', fontWeight: 'bold', boxShadow: '0 0 30px rgba(255,255,255,0.4)' }}>
-              Begin Performance
+            <button 
+              onClick={startPerformance} 
+              style={{ 
+                padding: '25px 60px', 
+                fontSize: '1.8rem', 
+                background: 'black', 
+                color: 'white', 
+                border: '1px solid #444', 
+                cursor: 'pointer', 
+                letterSpacing: '3px', 
+                borderRadius: '8px', 
+                textTransform: 'uppercase', 
+                fontFamily: 'serif',
+                animation: 'pulse 2s infinite', // <--- THE PULSE
+                boxShadow: '0 0 20px rgba(0,0,0,0.5)'
+              }}
+            >
+              ☞&nbsp;&nbsp;Begin Performance&nbsp;&nbsp;☜
             </button>
           )}
 
@@ -325,15 +372,7 @@ export default function Home() {
                   <img 
                     src={line.avatar} 
                     alt={line.speaker} 
-                    style={{ 
-                      width: '100px', 
-                      height: '100px', 
-                      borderRadius: '50%', 
-                      objectFit: 'cover', 
-                      flexShrink: 0,
-                      border: '3px solid rgba(255,255,255,0.5)',
-                      boxShadow: '0 5px 15px rgba(0,0,0,0.5)'
-                    }} 
+                    style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '3px solid rgba(255,255,255,0.5)', boxShadow: '0 5px 15px rgba(0,0,0,0.5)' }} 
                   />
                   
                   <div style={{ 
@@ -362,15 +401,7 @@ export default function Home() {
             })}
 
             {showControls && (
-              <div style={{ 
-                marginTop: '40px', 
-                padding: '40px', 
-                borderTop: '1px solid rgba(255,255,255,0.2)', 
-                display: 'flex', 
-                gap: '20px', 
-                justifyContent: 'center',
-                animation: 'fadeIn 0.5s ease'
-              }}>
+              <div style={{ marginTop: '40px', padding: '40px', borderTop: '1px solid rgba(255,255,255,0.2)', display: 'flex', gap: '20px', justifyContent: 'center', animation: 'fadeIn 0.5s ease' }}>
                 <button onClick={continuePerformance} style={{ padding: '20px 40px', fontSize: '1.2rem', background: 'white', color: '#260b00', border: 'none', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold', boxShadow: '0 0 20px rgba(255,255,255,0.3)' }}>
                   CONTINUE DISCUSSION
                 </button>
