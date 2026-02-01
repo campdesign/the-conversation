@@ -161,6 +161,7 @@ export default function Home() {
       justifyContent: 'space-between'
     }}>
       
+      {/* CSS FOR RESPONSIVENESS */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes drift {
           0% { transform: translateX(0); }
@@ -173,6 +174,16 @@ export default function Home() {
         }
         .carousel-container::-webkit-scrollbar { display: none; }
         .carousel-container { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* MOBILE OVERRIDES (Screens smaller than 768px) */
+        @media (max-width: 768px) {
+          .intro-text { font-size: 1rem !important; }
+          .vs-container { flex-direction: column !important; gap: 20px !important; }
+          .topic-input { font-size: 1.5rem !important; width: 90% !important; }
+          .chat-avatar { width: 60px !important; height: 60px !important; }
+          .chat-bubble { padding: 15px 20px !important; font-size: 1rem !important; border-radius: 20px !important; }
+          .action-button { width: 90% !important; padding: 20px !important; font-size: 1.2rem !important; }
+        }
       `}} />
 
       <div>
@@ -192,7 +203,7 @@ export default function Home() {
           textAlign: 'center', 
           padding: '0 20px'
         }}>
-          <h2 style={{ 
+          <h2 className="intro-text" style={{ 
             fontSize: '1.2rem', 
             fontStyle: 'italic', 
             color: '#e6c288', 
@@ -209,12 +220,12 @@ export default function Home() {
         {/* CAROUSEL */}
         <div style={{ position: 'relative', width: '100%', marginBottom: '40px', overflow: 'hidden' }}>
           <div style={{
-            position: 'absolute', top: 0, left: 0, width: '300px', height: '100%', zIndex: 2,
+            position: 'absolute', top: 0, left: 0, width: '100px', height: '100%', zIndex: 2,
             background: 'linear-gradient(to right, rgba(38,11,0,1) 0%, transparent 100%)',
             pointerEvents: 'none'
           }}></div>
           <div style={{
-            position: 'absolute', top: 0, right: 0, width: '300px', height: '100%', zIndex: 2,
+            position: 'absolute', top: 0, right: 0, width: '100px', height: '100%', zIndex: 2,
             background: 'linear-gradient(to left, rgba(38,11,0,1) 0%, transparent 100%)',
             pointerEvents: 'none'
           }}></div>
@@ -256,7 +267,10 @@ export default function Home() {
 
         {/* MATCHUP CARDS */}
         <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px', marginBottom: '40px' }}>
+          
+          {/* Add class vs-container for mobile stacking */}
+          <div className="vs-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px', marginBottom: '40px' }}>
+            
             {/* Card 1 */}
             <div style={{ 
               width: '180px', height: '250px', border: '2px solid rgba(255,255,255,0.4)', borderRadius: '8px',
@@ -299,6 +313,7 @@ export default function Home() {
               display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' 
           }}>
             <input 
+              className="topic-input"
               type="text" placeholder="ENTER TOPIC" value={topic} onChange={(e) => setTopic(e.target.value)}
               style={{ 
                 width: '80%', fontSize: '2.5rem', textAlign: 'center', border: 'none', background: 'transparent', 
@@ -318,6 +333,7 @@ export default function Home() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', marginBottom: '60px' }}>
             {!isTalking && !showControls && (
               <button 
+                className="action-button"
                 onClick={startPerformance} 
                 style={{ 
                   padding: '25px 60px', fontSize: '1.8rem', background: 'black', color: '#e6c288', 
@@ -330,7 +346,7 @@ export default function Home() {
             )}
 
             {isTalking && (
-              <button disabled style={{ padding: '20px 60px', fontSize: '1.5rem', background: 'rgba(0,0,0,0.5)', color: '#aaa', border: '1px solid #555', cursor: 'wait', letterSpacing: '2px', borderRadius: '8px' }}>
+              <button className="action-button" disabled style={{ padding: '20px 60px', fontSize: '1.5rem', background: 'rgba(0,0,0,0.5)', color: '#aaa', border: '1px solid #555', cursor: 'wait', letterSpacing: '2px', borderRadius: '8px' }}>
                 DEBATING...
               </button>
             )}
@@ -346,8 +362,8 @@ export default function Home() {
                     display: 'flex', flexDirection: isLeft ? 'row' : 'row-reverse', alignItems: 'center', 
                     gap: '20px', alignSelf: isLeft ? 'flex-start' : 'flex-end', maxWidth: '90%'
                   }}>
-                    <img src={line.avatar} alt={line.speaker} style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '3px solid rgba(255,255,255,0.5)', boxShadow: '0 5px 15px rgba(0,0,0,0.5)' }} />
-                    <div style={{ 
+                    <img className="chat-avatar" src={line.avatar} alt={line.speaker} style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '3px solid rgba(255,255,255,0.5)', boxShadow: '0 5px 15px rgba(0,0,0,0.5)' }} />
+                    <div className="chat-bubble" style={{ 
                       background: isLeft ? 'linear-gradient(135deg, #ffffff 0%, #dcdcdc 100%)' : 'linear-gradient(135deg, #222222 0%, #000000 100%)',
                       color: isLeft ? 'black' : 'white', boxShadow: isLeft ? '5px 5px 15px rgba(0,0,0,0.5), inset 2px 2px 5px rgba(255,255,255,1)' : '5px 5px 15px rgba(0,0,0,0.8), inset 1px 1px 2px rgba(255,255,255,0.1)',
                       padding: '30px 40px', borderRadius: '30px', borderBottomLeftRadius: isLeft ? '4px' : '30px', borderBottomRightRadius: isLeft ? '30px' : '4px',
@@ -362,10 +378,10 @@ export default function Home() {
 
               {showControls && (
                 <div style={{ marginTop: '40px', padding: '40px', borderTop: '1px solid rgba(255,255,255,0.2)', display: 'flex', gap: '20px', justifyContent: 'center', animation: 'fadeIn 0.5s ease' }}>
-                  <button onClick={continuePerformance} style={{ padding: '20px 40px', fontSize: '1.2rem', background: 'white', color: '#260b00', border: 'none', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold', boxShadow: '0 0 20px rgba(255,255,255,0.3)' }}>
+                  <button className="action-button" onClick={continuePerformance} style={{ padding: '20px 40px', fontSize: '1.2rem', background: 'white', color: '#260b00', border: 'none', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold', boxShadow: '0 0 20px rgba(255,255,255,0.3)' }}>
                     CONTINUE DISCUSSION
                   </button>
-                  <button onClick={fullReset} style={{ padding: '20px 40px', fontSize: '1.2rem', background: 'transparent', color: 'white', border: '2px solid white', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold' }}>
+                  <button className="action-button" onClick={fullReset} style={{ padding: '20px 40px', fontSize: '1.2rem', background: 'transparent', color: 'white', border: '2px solid white', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold' }}>
                     RESTART
                   </button>
                 </div>
@@ -376,11 +392,11 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- FOOTER (Transparent & Full Width) --- */}
+      {/* --- FOOTER --- */}
       <footer style={{ 
         marginTop: '60px', 
         textAlign: 'center',
-        background: 'transparent', // <--- Set to Transparent
+        background: 'transparent',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -410,7 +426,7 @@ export default function Home() {
                 gap: '6px'
                 }}
             >
-                ❖ A CampDesign Project
+                ❖ A campdesign Project
             </a>
             </p>
         </div>
