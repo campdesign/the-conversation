@@ -38,9 +38,15 @@ export default function Home() {
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // --- FIXED SCROLLING BEHAVIOR ---
   useEffect(() => {
-    scrollToBottom();
-  }, [conversation, showControls]);
+    // ONLY scroll automatically when the controls appear (end of turn)
+    // We removed 'conversation' from the dependencies so it won't 
+    // jump while the user is reading.
+    if (showControls) {
+      scrollToBottom();
+    }
+  }, [showControls]);
 
   // --- DRAG HANDLERS ---
   const handleMouseDown = (e) => {
@@ -95,14 +101,9 @@ export default function Home() {
       const newHistory = [...currentHistory, newLine];
       setConversation(newHistory);
 
-      // --- PACING LOGIC CHANGE ---
-      // If length is ODD (1, 3, 5...), it means Speaker A just spoke. 
-      // We automatically trigger Speaker B.
       if (newHistory.length % 2 !== 0) { 
-        setTimeout(() => runTurn(newHistory, speakerIndex === 0 ? 1 : 0), 4000); // 4s delay for reading
+        setTimeout(() => runTurn(newHistory, speakerIndex === 0 ? 1 : 0), 4000);
       } else {
-        // If length is EVEN (2, 4, 6...), it means Speaker B just responded.
-        // We STOP here and show the "Continue" button.
         setIsTalking(false);
         isTalkingRef.current = false;
         setShowControls(true);
@@ -122,6 +123,11 @@ export default function Home() {
     setIsTalking(true);
     isTalkingRef.current = true; 
     runTurn([], 0);
+    
+    // Slight scroll to show the stage has started, but only on initial start
+    setTimeout(() => {
+        chatBottomRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 200);
   };
 
   const continuePerformance = () => {
