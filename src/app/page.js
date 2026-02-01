@@ -23,29 +23,36 @@ export default function Home() {
       <section style={{ marginBottom: '40px' }}>
         <h3 style={{ fontStyle: 'italic', marginBottom: '20px' }}>SELECT TWO THINKERS</h3>
         
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+        {/* THE GRID: 3 Columns, Auto-Rows */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(3, 1fr)', 
+          gap: '20px',
+          maxWidth: '500px',
+          margin: '0 auto' 
+        }}>
           {characters.map(char => (
             <button 
               key={char.id}
               onClick={() => toggleChar(char.id)}
               style={{
                 border: selected.includes(char.id) ? '2px solid black' : '1px solid #ccc',
-                padding: '10px 20px',
+                padding: '15px',
                 background: selected.includes(char.id) ? '#f0f0f0' : 'white',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                width: '120px'
+                borderRadius: '8px',
+                transition: 'all 0.2s'
               }}
             >
-              {/* This image tag is what makes the avatars show up! */}
               <img 
                 src={char.avatar} 
                 alt={char.name} 
                 style={{ width: '80px', height: '80px', borderRadius: '50%', marginBottom: '10px', objectFit: 'cover' }} 
               />
-              <span>{char.name}</span>
+              <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{char.name}</span>
             </button>
           ))}
         </div>
