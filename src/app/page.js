@@ -17,7 +17,7 @@ export default function Home() {
   const chatBottomRef = useRef(null);
   const isTalkingRef = useRef(false);
   const carouselRef = useRef(null);
-  const audioRef = useRef(null); // <--- NEW AUDIO REF
+  const audioRef = useRef(null);
 
   const carouselList = [...characters, ...characters];
 
@@ -98,8 +98,6 @@ export default function Home() {
       const newLine = { speaker: speaker.name, text: data.message, avatar: speaker.avatar };
       const newHistory = [...currentHistory, newLine];
       setConversation(newHistory);
-      
-      // PLAY SOUND
       playMessageSound(); 
 
       if (newHistory.length % 2 !== 0) { 
@@ -169,10 +167,10 @@ export default function Home() {
       overflowX: 'hidden',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      alignItems: 'center'
     }}>
       
-      {/* HIDDEN AUDIO ELEMENT */}
       <audio ref={audioRef} src="/message.mp3" preload="auto" />
 
       {/* CSS FOR RESPONSIVENESS & STEPS */}
@@ -196,7 +194,6 @@ export default function Home() {
           object-fit: cover;
         }
 
-        /* DEFAULT DESKTOP SCROLL */
         .desktop-scroll-wrapper {
           display: flex;
           gap: 30px;
@@ -211,7 +208,6 @@ export default function Home() {
         }
         .carousel-fade { width: 400px; display: block; }
 
-        /* STEP HEADERS */
         .step-header {
           font-size: 1rem;
           color: #e6c288;
@@ -225,7 +221,6 @@ export default function Home() {
           padding-bottom: 5px;
         }
         
-        /* TOPIC FRAME */
         .topic-container {
            margin: 0 auto 20px auto;
            width: 100%;
@@ -239,10 +234,17 @@ export default function Home() {
            align-items: center;
            justify-content: center;
            padding: 40px;
+           box-sizing: border-box; /* Ensures padding doesn't expand width */
         }
+
+        /* Show fingers on desktop by default */
+        .desktop-only { display: inline; }
 
         /* MOBILE OVERRIDES */
         @media (max-width: 768px) {
+          /* HIDE FINGERS on mobile so button centers text properly */
+          .desktop-only { display: none !important; }
+
           .responsive-banner { 
             height: 140px !important; 
             object-position: center !important;
@@ -251,8 +253,12 @@ export default function Home() {
           .intro-text { font-size: 1rem !important; }
           .vs-container { flex-direction: column !important; gap: 20px !important; }
           
-          /* Centering fixes for Topic & Button */
-          .topic-container { padding: 20px !important; width: 95% !important; margin: 0 auto 20px auto !important; }
+          /* Centering fixes */
+          .topic-container { 
+            padding: 20px !important; 
+            width: 95% !important; 
+            margin: 0 auto 20px auto !important; 
+          }
           .topic-input { 
               font-size: 1.5rem !important; 
               width: 90% !important; 
@@ -265,8 +271,12 @@ export default function Home() {
           .action-button { 
               width: 90% !important; 
               padding: 20px !important; 
-              font-size: 1.1rem !important;
+              font-size: 1.2rem !important;
               margin: 0 auto !important;
+              /* Center content flex */
+              display: flex !important;
+              justify-content: center !important;
+              align-items: center !important;
           }
 
           /* MOBILE GRID TRANSFORM */
@@ -293,7 +303,7 @@ export default function Home() {
       `}} />
 
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        {/* BANNER (Top) */}
+        {/* BANNER */}
         <div style={{ width: '100%', marginBottom: '0px', background: 'transparent' }}>
           <img 
             src="/banner.png" 
@@ -323,14 +333,12 @@ export default function Home() {
           </h2>
         </div>
 
-        {/* --- STEP 1: SELECT CHARACTERS --- */}
+        {/* --- STEP 1 --- */}
         <div style={{ textAlign: 'center' }}>
           <span className="step-header">Step 1: Choose Participants</span>
         </div>
 
         <div style={{ position: 'relative', width: '100%', marginBottom: '40px', overflow: 'hidden' }}>
-          
-          {/* FADES */}
           <div className="carousel-fade" style={{
             position: 'absolute', top: 0, left: 0, height: '100%', zIndex: 2,
             background: 'linear-gradient(to right, rgba(38,11,0,1) 0%, transparent 100%)',
@@ -363,9 +371,7 @@ export default function Home() {
                     background: selected.includes(char.id) ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
                     color: 'white', 
                     cursor: 'pointer', 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'center',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
                     borderRadius: '12px', 
                     transform: selected.includes(char.id) ? 'scale(1.05)' : 'scale(1)',
                     backdropFilter: 'blur(5px)',
@@ -376,15 +382,7 @@ export default function Home() {
                   <img 
                     src={char.avatar} 
                     alt={char.name} 
-                    style={{ 
-                      width: '100%', 
-                      aspectRatio: '1/1',
-                      borderRadius: '50%', 
-                      marginBottom: '10px', 
-                      objectFit: 'cover', 
-                      border: '2px solid rgba(255,255,255,0.5)', 
-                      pointerEvents: 'none' 
-                    }} 
+                    style={{ width: '100%', aspectRatio: '1/1', borderRadius: '50%', marginBottom: '10px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.5)', pointerEvents: 'none' }} 
                   />
                   <span style={{ fontWeight: 'bold', fontSize: '0.8rem', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
                     {char.name}
@@ -395,12 +393,9 @@ export default function Home() {
           </div>
         </div>
 
-        {/* MATCHUP CARDS */}
+        {/* MATCHUP */}
         <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center', width: '100%' }}>
-          
           <div className="vs-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px', marginBottom: '40px' }}>
-            
-            {/* Card 1 */}
             <div style={{ 
               width: '180px', height: '250px', border: '2px solid rgba(255,255,255,0.4)', borderRadius: '8px',
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -418,7 +413,6 @@ export default function Home() {
 
             <div style={{ fontSize: '3rem', fontStyle: 'italic', fontWeight: '900', color: '#e6c288', textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>VS</div>
 
-            {/* Card 2 */}
             <div style={{ 
               width: '180px', height: '250px', border: '2px solid rgba(255,255,255,0.4)', borderRadius: '8px',
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -435,7 +429,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* --- STEP 2: TOPIC --- */}
+          {/* --- STEP 2 --- */}
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
              <span className="step-header">Step 2: Choose Topic</span>
           </div>
@@ -470,7 +464,10 @@ export default function Home() {
                   textTransform: 'uppercase', fontFamily: 'serif', animation: 'pulse 2s infinite', boxShadow: '0 0 20px rgba(0,0,0,0.8)'
                 }}
               >
-                ☞&nbsp;&nbsp;Begin Performance&nbsp;&nbsp;☜
+                {/* Fingers hidden on mobile via CSS class */}
+                <span className="desktop-only">☞&nbsp;&nbsp;</span>
+                Begin Performance
+                <span className="desktop-only">&nbsp;&nbsp;☜</span>
               </button>
             )}
 
