@@ -17,6 +17,7 @@ export default function Home() {
   const chatBottomRef = useRef(null);
   const isTalkingRef = useRef(false);
   const carouselRef = useRef(null);
+  const audioRef = useRef(null); // <--- NEW AUDIO REF
 
   const carouselList = [...characters, ...characters];
 
@@ -36,7 +37,7 @@ export default function Home() {
 
   // --- DRAG HANDLERS ---
   const handleMouseDown = (e) => {
-    if (window.innerWidth <= 768) return; // Disable drag logic on mobile grid
+    if (window.innerWidth <= 768) return; 
     setIsDragging(false); 
     carouselRef.current.style.animationPlayState = 'paused';
     setStartX(e.pageX - carouselRef.current.offsetLeft);
@@ -57,6 +58,14 @@ export default function Home() {
     if (window.innerWidth <= 768) return;
     carouselRef.current.style.animationPlayState = 'running';
     setTimeout(() => setIsDragging(false), 50);
+  };
+
+  // --- SOUND FUNCTION ---
+  const playMessageSound = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => console.log("Audio play blocked:", e));
+    }
   };
 
   // --- API LOGIC ---
@@ -89,6 +98,9 @@ export default function Home() {
       const newLine = { speaker: speaker.name, text: data.message, avatar: speaker.avatar };
       const newHistory = [...currentHistory, newLine];
       setConversation(newHistory);
+      
+      // PLAY SOUND
+      playMessageSound(); 
 
       if (newHistory.length % 2 !== 0) { 
         setTimeout(() => runTurn(newHistory, speakerIndex === 0 ? 1 : 0), 4000);
@@ -160,6 +172,9 @@ export default function Home() {
       justifyContent: 'space-between'
     }}>
       
+      {/* HIDDEN AUDIO ELEMENT */}
+      <audio ref={audioRef} src="/message.mp3" preload="auto" />
+
       {/* CSS FOR RESPONSIVENESS & STEPS */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes drift {
@@ -209,6 +224,22 @@ export default function Home() {
           display: inline-block;
           padding-bottom: 5px;
         }
+        
+        /* TOPIC FRAME */
+        .topic-container {
+           margin: 0 auto 20px auto;
+           width: 100%;
+           max-width: 700px;
+           aspect-ratio: 3 / 1;
+           background-image: url('/topicframe.png');
+           background-size: contain;
+           background-repeat: no-repeat;
+           background-position: center;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           padding: 40px;
+        }
 
         /* MOBILE OVERRIDES */
         @media (max-width: 768px) {
@@ -219,35 +250,49 @@ export default function Home() {
           
           .intro-text { font-size: 1rem !important; }
           .vs-container { flex-direction: column !important; gap: 20px !important; }
-          .topic-input { font-size: 1.5rem !important; width: 90% !important; }
+          
+          /* Centering fixes for Topic & Button */
+          .topic-container { padding: 20px !important; width: 95% !important; margin: 0 auto 20px auto !important; }
+          .topic-input { 
+              font-size: 1.5rem !important; 
+              width: 90% !important; 
+              text-align: center !important; 
+          }
+          
           .chat-avatar { width: 60px !important; height: 60px !important; }
           .chat-bubble { padding: 15px 20px !important; font-size: 1rem !important; border-radius: 20px !important; }
-          .action-button { width: 90% !important; padding: 20px !important; font-size: 1.2rem !important; }
+          
+          .action-button { 
+              width: 90% !important; 
+              padding: 20px !important; 
+              font-size: 1.1rem !important;
+              margin: 0 auto !important;
+          }
 
           /* MOBILE GRID TRANSFORM */
           .carousel-container {
             width: 100% !important;
-            overflow-x: hidden !important; /* Disable scroll */
+            overflow-x: hidden !important; 
             padding: 0 10px !important;
           }
           .desktop-scroll-wrapper {
             display: flex !important;
-            flex-wrap: wrap !important; /* WRAP ITEMS */
+            flex-wrap: wrap !important;
             justify-content: center !important;
             width: 100% !important;
-            animation: none !important; /* STOP MOVING */
+            animation: none !important;
             gap: 15px !important;
             padding: 0 !important;
             transform: none !important;
           }
           .character-card {
-            width: 100px !important; /* Smaller cards for grid */
+            width: 100px !important; 
           }
-          .carousel-fade { display: none !important; } /* Remove fades so we can click edges */
+          .carousel-fade { display: none !important; } 
         }
       `}} />
 
-      <div>
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         {/* BANNER (Top) */}
         <div style={{ width: '100%', marginBottom: '0px', background: 'transparent' }}>
           <img 
@@ -285,7 +330,7 @@ export default function Home() {
 
         <div style={{ position: 'relative', width: '100%', marginBottom: '40px', overflow: 'hidden' }}>
           
-          {/* FADES (Hidden on mobile via CSS) */}
+          {/* FADES */}
           <div className="carousel-fade" style={{
             position: 'absolute', top: 0, left: 0, height: '100%', zIndex: 2,
             background: 'linear-gradient(to right, rgba(38,11,0,1) 0%, transparent 100%)',
@@ -306,10 +351,7 @@ export default function Home() {
             onMouseLeave={handleMouseUp}
             style={{ overflowX: 'auto', cursor: isDragging ? 'grabbing' : 'grab', padding: '20px 0', width: '100%' }}
           >
-            {/* The Wrapper class switches between Scroll (Desktop) and Grid (Mobile) */}
             <div className="desktop-scroll-wrapper">
-              {/* Use just 'characters' for mobile grid to avoid duplicates, or 'carouselList' for infinite scroll desktop */}
-              {/* For simplicity in this hybrid mode, we will just map characters once for clarity on mobile grid */}
               {(typeof window !== 'undefined' && window.innerWidth <= 768 ? characters : carouselList).map((char, index) => (
                 <div 
                   key={`${char.id}-${index}`} 
@@ -354,7 +396,7 @@ export default function Home() {
         </div>
 
         {/* MATCHUP CARDS */}
-        <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center', width: '100%' }}>
           
           <div className="vs-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px', marginBottom: '40px' }}>
             
@@ -398,11 +440,7 @@ export default function Home() {
              <span className="step-header">Step 2: Choose Topic</span>
           </div>
 
-          <div style={{ 
-              margin: '0 auto 20px auto', width: '100%', maxWidth: '700px', aspectRatio: '3 / 1', 
-              backgroundImage: "url('/topicframe.png')", backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' 
-          }}>
+          <div className="topic-container">
             <input 
               className="topic-input"
               type="text" placeholder="ENTER TOPIC" value={topic} onChange={(e) => setTopic(e.target.value)}
@@ -421,7 +459,7 @@ export default function Home() {
           </div>
 
           {/* ACTIONS */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', marginBottom: '60px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', marginBottom: '60px', width: '100%' }}>
             {!isTalking && !showControls && (
               <button 
                 className="action-button"
@@ -445,7 +483,7 @@ export default function Home() {
 
           {/* CHAT */}
           {conversation.length > 0 && (
-            <div style={{ marginTop: '40px', display: 'flex', flexDirection: 'column', gap: '30px', paddingBottom: '40px', paddingLeft: '20px', paddingRight: '20px' }}>
+            <div style={{ marginTop: '40px', display: 'flex', flexDirection: 'column', gap: '30px', paddingBottom: '40px', paddingLeft: '20px', paddingRight: '20px', width: '100%', maxWidth: '1000px' }}>
               {conversation.map((line, index) => {
                 const isLeft = line.speaker === characters.find(c => c.id === selected[0]).name;
                 return (
@@ -520,6 +558,9 @@ export default function Home() {
             >
                 ❖ A CampDesign Project
             </a>
+            </p>
+            <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '10px' }}>
+              For entertainment purposes only.
             </p>
         </div>
       </footer>
